@@ -318,6 +318,7 @@ gtag('config', '${GA_ID}');`,
           { text: "Comparison", link: "/examples/comparison" },
           { text: "Version Detection", link: "/examples/version-detection" },
           { text: "Generator", link: "/examples/generator" },
+          { text: "Sequential IDs", link: "/examples/sequential-ids" },
         ],
       },
       {

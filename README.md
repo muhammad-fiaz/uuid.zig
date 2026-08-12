@@ -297,7 +297,7 @@ defer allocator.free(str);
 
 ## Examples
 
-The `examples/` directory contains **16 runnable examples** demonstrating all features:
+The `examples/` directory contains **17 runnable examples** demonstrating all features:
 
 | Example | Description |
 |---------|-------------|
@@ -317,6 +317,7 @@ The `examples/` directory contains **16 runnable examples** demonstrating all fe
 | [`namespaces`](examples/namespaces.zig) | RFC 4122 namespace constants |
 | [`version_detection`](examples/version_detection.zig) | Detect UUID version and variant |
 | [`batch_generation`](examples/batch_generation.zig) | Batch generate v4 and v7 UUIDs |
+| [`sequential_ids`](examples/sequential_ids.zig) | Sequential UUIDs for user registration and database storage |
 
 To run any example:
 
@@ -337,6 +338,7 @@ zig build run-hash-map
 zig build run-namespaces
 zig build run-version-detection
 zig build run-batch-generation
+zig build run-sequential-ids
 ```
 
 ## Validation

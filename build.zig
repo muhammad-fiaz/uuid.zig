@@ -32,6 +32,7 @@ pub fn build(b: *std.Build) void {
             .{ .name = "namespaces", .path = "examples/namespaces.zig" },
             .{ .name = "version-detection", .path = "examples/version_detection.zig" },
             .{ .name = "batch-generation", .path = "examples/batch_generation.zig" },
+            .{ .name = "sequential-ids", .path = "examples/sequential_ids.zig" },
         };
 
         const run_all_examples = b.step("run-all-examples", "Run all examples sequentially");
