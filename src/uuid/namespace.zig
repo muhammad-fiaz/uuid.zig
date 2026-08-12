@@ -1,0 +1,42 @@
+const std = @import("std");
+
+pub const Namespace = struct {
+    pub const dns: UUID = .{ .bytes = .{
+        0x6b, 0xa7, 0xb8, 0x10, 0x9d, 0xad, 0x11, 0xd1,
+        0x80, 0xb4, 0x00, 0xc0, 0x4f, 0xd4, 0x30, 0xc8,
+    } };
+    pub const url: UUID = .{ .bytes = .{
+        0x6b, 0xa7, 0xb8, 0x11, 0x9d, 0xad, 0x11, 0xd1,
+        0x80, 0xb4, 0x00, 0xc0, 0x4f, 0xd4, 0x30, 0xc8,
+    } };
+    pub const oid: UUID = .{ .bytes = .{
+        0x6b, 0xa7, 0xb8, 0x12, 0x9d, 0xad, 0x11, 0xd1,
+        0x80, 0xb4, 0x00, 0xc0, 0x4f, 0xd4, 0x30, 0xc8,
+    } };
+    pub const x500: UUID = .{ .bytes = .{
+        0x6b, 0xa7, 0xb8, 0x14, 0x9d, 0xad, 0x11, 0xd1,
+        0x80, 0xb4, 0x00, 0xc0, 0x4f, 0xd4, 0x30, 0xc8,
+    } };
+};
+
+const UUID = @import("core.zig").UUID;
+
+test "namespace dns" {
+    const testing = std.testing;
+    try testing.expectEqual(@as(usize, 16), Namespace.dns.bytes.len);
+}
+
+test "namespace url" {
+    const testing = std.testing;
+    try testing.expect(!Namespace.dns.eql(Namespace.url));
+}
+
+test "namespace oid" {
+    const testing = std.testing;
+    try testing.expect(!Namespace.dns.eql(Namespace.oid));
+}
+
+test "namespace x500" {
+    const testing = std.testing;
+    try testing.expect(!Namespace.dns.eql(Namespace.x500));
+}

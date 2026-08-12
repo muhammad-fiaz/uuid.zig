@@ -1,0 +1,22 @@
+# Zig
+zig-cache/
+zig-out/
+.zig-cache/
+
+# VitePress / Node
+docs/node_modules/
+docs/.vitepress/dist/
+docs/.vitepress/cache/
+docs/.vitepress/.temp/
+docs/.vitepress/.server/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
