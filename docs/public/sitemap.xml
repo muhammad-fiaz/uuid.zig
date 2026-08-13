@@ -1,4 +1,39 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url><loc>https://muhammad-fiaz.github.io/uuid.zig/</loc></url>
+  <url><loc>https://muhammad-fiaz.github.io/uuid.zig/guide/getting-started</loc></url>
+  <url><loc>https://muhammad-fiaz.github.io/uuid.zig/guide/installation</loc></url>
+  <url><loc>https://muhammad-fiaz.github.io/uuid.zig/guide/api-overview</loc></url>
+  <url><loc>https://muhammad-fiaz.github.io/uuid.zig/guide/uuid-versions</loc></url>
+  <url><loc>https://muhammad-fiaz.github.io/uuid.zig/guide/parsing-formatting</loc></url>
+  <url><loc>https://muhammad-fiaz.github.io/uuid.zig/guide/comparison-conversion</loc></url>
+  <url><loc>https://muhammad-fiaz.github.io/uuid.zig/guide/custom-generation</loc></url>
+  <url><loc>https://muhammad-fiaz.github.io/uuid.zig/guide/allocator-io</loc></url>
+  <url><loc>https://muhammad-fiaz.github.io/uuid.zig/guide/generator</loc></url>
+  <url><loc>https://muhammad-fiaz.github.io/uuid.zig/api/</loc></url>
+  <url><loc>https://muhammad-fiaz.github.io/uuid.zig/api/uuid</loc></url>
+  <url><loc>https://muhammad-fiaz.github.io/uuid.zig/api/version</loc></url>
+  <url><loc>https://muhammad-fiaz.github.io/uuid.zig/api/variant</loc></url>
+  <url><loc>https://muhammad-fiaz.github.io/uuid.zig/api/namespace</loc></url>
+  <url><loc>https://muhammad-fiaz.github.io/uuid.zig/api/generator-api</loc></url>
+  <url><loc>https://muhammad-fiaz.github.io/uuid.zig/api/parse</loc></url>
+  <url><loc>https://muhammad-fiaz.github.io/uuid.zig/api/format</loc></url>
+  <url><loc>https://muhammad-fiaz.github.io/uuid.zig/examples/</loc></url>
+  <url><loc>https://muhammad-fiaz.github.io/uuid.zig/examples/basic-usage</loc></url>
+  <url><loc>https://muhammad-fiaz.github.io/uuid.zig/examples/v1-time-based</loc></url>
+  <url><loc>https://muhammad-fiaz.github.io/uuid.zig/examples/v3-md5-namespace</loc></url>
+  <url><loc>https://muhammad-fiaz.github.io/uuid.zig/examples/v4-random</loc></url>
+  <url><loc>https://muhammad-fiaz.github.io/uuid.zig/examples/v5-sha1-namespace</loc></url>
+  <url><loc>https://muhammad-fiaz.github.io/uuid.zig/examples/v6-reordered</loc></url>
+  <url><loc>https://muhammad-fiaz.github.io/uuid.zig/examples/v7-time-ordered</loc></url>
+  <url><loc>https://muhammad-fiaz.github.io/uuid.zig/examples/v8-application-specific</loc></url>
+  <url><loc>https://muhammad-fiaz.github.io/uuid.zig/examples/batch-generation</loc></url>
+  <url><loc>https://muhammad-fiaz.github.io/uuid.zig/examples/deterministic</loc></url>
+  <url><loc>https://muhammad-fiaz.github.io/uuid.zig/examples/hash-map</loc></url>
+  <url><loc>https://muhammad-fiaz.github.io/uuid.zig/examples/namespaces</loc></url>
+  <url><loc>https://muhammad-fiaz.github.io/uuid.zig/examples/parsing-formats</loc></url>
+  <url><loc>https://muhammad-fiaz.github.io/uuid.zig/examples/comparison</loc></url>
+  <url><loc>https://muhammad-fiaz.github.io/uuid.zig/examples/version-detection</loc></url>
+  <url><loc>https://muhammad-fiaz.github.io/uuid.zig/examples/generator</loc></url>
+  <url><loc>https://muhammad-fiaz.github.io/uuid.zig/examples/sequential-ids</loc></url>
 </urlset>
