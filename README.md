@@ -1,5 +1,10 @@
 <div align="center">
 
+<img  height="250" alt="image logo" src="https://github.com/user-attachments/assets/e5d199c0-2163-419f-bdfd-15624a722df6" />
+
+
+# UUID.zig
+
 <a href="https://muhammad-fiaz.github.io/uuid.zig/"><img src="https://img.shields.io/badge/docs-muhammad--fiaz.github.io-blue" alt="Documentation"></a>
 <a href="https://ziglang.org/"><img src="https://img.shields.io/badge/Zig-0.16.0-orange.svg?logo=zig" alt="Zig Version"></a>
 <a href="https://github.com/muhammad-fiaz/uuid.zig"><img src="https://img.shields.io/github/stars/muhammad-fiaz/uuid.zig" alt="GitHub stars"></a>
