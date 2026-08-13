@@ -10,6 +10,7 @@ UUID parsing functions.
 | `parseCompact` | `(input: []const u8) ParseError!UUID` | Parse compact format |
 | `parseBraced` | `(input: []const u8) ParseError!UUID` | Parse braced format |
 | `parseUrn` | `(input: []const u8) ParseError!UUID` | Parse URN format |
+| `parseAll` | `(inputs: []const []const u8, allocator: Allocator) (Allocator.Error \|\| ParseError)![]UUID` | Parse multiple UUIDs |
 
 ## Formats
 

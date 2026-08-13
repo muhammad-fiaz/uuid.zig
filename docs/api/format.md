@@ -6,13 +6,13 @@ UUID formatting functions.
 
 | Function | Signature | Description |
 |----------|-----------|-------------|
-| `encode` | `(self: *const UUID, buffer: []u8) []u8` | Canonical lowercase |
-| `encodeUppercase` | `(self: *const UUID, buffer: []u8) []u8` | Canonical uppercase |
-| `encodeCompact` | `(self: *const UUID, buffer: []u8) []u8` | No dashes |
-| `encodeBraced` | `(self: *const UUID, buffer: []u8) []u8` | Wrapped in braces |
-| `encodeUrn` | `(self: *const UUID, buffer: []u8) []u8` | URN prefix |
-| `format` | `(self: *const UUID, writer: *Io.Writer) Io.Writer.Error!void` | Write to writer |
-| `toString` | `(self: *const UUID, allocator: Allocator) Allocator.Error![]u8` | Allocated string |
+| `encode` | `(self: UUID, buffer: []u8) []u8` | Canonical lowercase |
+| `encodeUppercase` | `(self: UUID, buffer: []u8) []u8` | Canonical uppercase |
+| `encodeCompact` | `(self: UUID, buffer: []u8) []u8` | No dashes |
+| `encodeBraced` | `(self: UUID, buffer: []u8) []u8` | Wrapped in braces |
+| `encodeUrn` | `(self: UUID, buffer: []u8) []u8` | URN prefix |
+| `format` | `(self: UUID, writer: *Io.Writer) Io.Writer.Error!void` | Write to writer |
+| `toString` | `(self: UUID, allocator: Allocator) Allocator.Error![]u8` | Allocated string |
 
 ## Buffer Sizes
 
@@ -23,3 +23,15 @@ UUID formatting functions.
 | Compact | 32 bytes |
 | Braced | 38 bytes |
 | URN | 45 bytes |
+
+## Validation
+
+Use `uuid.isValid(input)` to check if a string is a valid UUID format without parsing:
+
+```zig
+if (uuid.isValid("550e8400-e29b-41d4-a716-446655440000")) {
+    // Valid format
+}
+```
+
+Supports all formats: canonical, compact, braced, and URN.

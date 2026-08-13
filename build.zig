@@ -33,6 +33,7 @@ pub fn build(b: *std.Build) void {
             .{ .name = "version-detection", .path = "examples/version_detection.zig" },
             .{ .name = "batch-generation", .path = "examples/batch_generation.zig" },
             .{ .name = "sequential-ids", .path = "examples/sequential_ids.zig" },
+            .{ .name = "uuid-internals", .path = "examples/uuid_internals.zig" },
         };
 
         const run_all_examples = b.step("run-all-examples", "Run all examples sequentially");

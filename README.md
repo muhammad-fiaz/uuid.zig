@@ -41,6 +41,7 @@
 | Feature | Description |
 |---------|-------------|
 | **UUID v1** | Time-based UUID generation with custom timestamp, clock sequence, and node. |
+| **UUID v2** | DCE Security UUID for POSIX UID/GID and other security identifiers. |
 | **UUID v3** | Deterministic UUID via MD5 namespace hashing. |
 | **UUID v4** | Cryptographically secure random UUID via `std.Io`. |
 | **UUID v5** | Deterministic UUID via SHA-1 namespace hashing. |
@@ -56,7 +57,12 @@
 | **Hash Algorithms** | MD5 (v3) and SHA-1 (v5) via Zig standard library. |
 | **Deterministic Generation** | Custom timestamps for reproducible UUIDs and testing. |
 | **Namespace Constants** | RFC 4122 namespace UUIDs (DNS, URL, OID, X.500). |
-| **Modular Codebase** | Separated concerns: version, variant, core, parse, format, generator, hex, namespace, errors. |
+| **Timestamp Extraction** | Extract timestamps from v1, v6, and v7 UUIDs. |
+| **Component Decomposition** | Extract clock sequence and node from v1/v6 UUIDs. |
+| **Sorting** | Sort UUID slices in-place for database ordering. |
+| **Validation** | Check UUID string format without parsing. |
+| **Batch Operations** | Parse and validate multiple UUIDs at once. |
+| **Modular Codebase** | Separated concerns: version, variant, core, parse, generator, hex, namespace, errors. |
 
 </details>
 
@@ -214,6 +220,9 @@ const id = uuid.UUID.v5(uuid.Namespace.dns, "example.com");
 // v1 (time-based)
 const id = uuid.UUID.v1(timestamp, clock_seq, node);
 
+// v2 (DCE Security - POSIX UID/GID)
+const id = uuid.UUID.v2(domain, local_id, node);
+
 // v6 (reordered time-based)
 const id = uuid.UUID.v6(timestamp, clock_seq, node);
 
@@ -231,6 +240,18 @@ const id = try uuid.parse("550e8400-e29b-41d4-a716-446655440000");
 const id = try uuid.parseCompact("550e8400e29b41d4a716446655440000");
 const id = try uuid.parseBraced("{550e8400-e29b-41d4-a716-446655440000}");
 const id = try uuid.parseUrn("urn:uuid:550e8400-e29b-41d4-a716-446655440000");
+
+// Batch parse
+const ids = try uuid.parseAll(&inputs, allocator);
+defer allocator.free(ids);
+```
+
+### Validate
+
+```zig
+if (uuid.isValid("550e8400-e29b-41d4-a716-446655440000")) {
+    // Valid UUID format
+}
 ```
 
 ### Format
@@ -257,6 +278,25 @@ const version = id.version();   // .v4
 const variant = id.variant();   // .rfc
 const is_nil = id.isNil();      // false
 const is_max = id.isMax();      // false
+```
+
+### Extract Components
+
+```zig
+// From v1/v6 UUIDs
+const timestamp = id.timestampV1(); // u60
+const timestamp = id.timestampV6(); // u60
+const clock = id.clockSeq();        // u14
+const node = id.node();             // [6]u8
+
+// From v7 UUIDs
+const timestamp_ms = id.timestampV7(); // u48
+```
+
+### Sort
+
+```zig
+uuid.UUID.sort(&uuids); // Sorts in-place
 ```
 
 ### Compare
@@ -302,7 +342,7 @@ defer allocator.free(str);
 
 ## Examples
 
-The `examples/` directory contains **17 runnable examples** demonstrating all features:
+The `examples/` directory contains **18 runnable examples** demonstrating all features:
 
 | Example | Description |
 |---------|-------------|
@@ -323,6 +363,7 @@ The `examples/` directory contains **17 runnable examples** demonstrating all fe
 | [`version_detection`](examples/version_detection.zig) | Detect UUID version and variant |
 | [`batch_generation`](examples/batch_generation.zig) | Batch generate v4 and v7 UUIDs |
 | [`sequential_ids`](examples/sequential_ids.zig) | Sequential UUIDs for user registration and database storage |
+| [`uuid_internals`](examples/uuid_internals.zig) | Timestamp extraction, sorting, validation, batch parsing |
 
 To run any example:
 
@@ -344,6 +385,7 @@ zig build run-namespaces
 zig build run-version-detection
 zig build run-batch-generation
 zig build run-sequential-ids
+zig build run-uuid-internals
 ```
 
 ## Validation

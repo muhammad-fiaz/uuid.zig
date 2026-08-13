@@ -43,6 +43,32 @@ pub fn parseUrn(input: []const u8) ParseError!UUID {
     return parse(input[9..45]);
 }
 
+pub fn parseAll(inputs: []const []const u8, allocator: std.mem.Allocator) (std.mem.Allocator.Error || ParseError)![]UUID {
+    const ids = try allocator.alloc(UUID, inputs.len);
+    errdefer allocator.free(ids);
+    for (inputs, 0..) |input, i| {
+        ids[i] = try parse(input);
+    }
+    return ids;
+}
+
+pub fn parseMultiDelim(input: []const u8, delimiter: u8) ParseError![]UUID {
+    var list = std.ArrayListUnmanaged(UUID){};
+    var start: usize = 0;
+    for (input, 0..) |c, i| {
+        if (c == delimiter) {
+            const id = try parse(input[start..i]);
+            try list.append(std.heap.page_allocator, id);
+            start = i + 1;
+        }
+    }
+    if (start < input.len) {
+        const id = try parse(input[start..]);
+        try list.append(std.heap.page_allocator, id);
+    }
+    return list.items;
+}
+
 test "parse canonical" {
     const testing = std.testing;
     const Namespace = @import("namespace.zig").Namespace;

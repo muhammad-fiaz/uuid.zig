@@ -20,6 +20,8 @@ pub const parse = parse_mod.parse;
 pub const parseCompact = parse_mod.parseCompact;
 pub const parseBraced = parse_mod.parseBraced;
 pub const parseUrn = parse_mod.parseUrn;
+pub const parseAll = parse_mod.parseAll;
+pub const isValid = core.isValid;
 
 test {
     _ = version;

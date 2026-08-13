@@ -69,7 +69,7 @@ pub const UUID = struct {
         return std.hash.Wyhash.hash(0, &self.bytes);
     }
 
-    pub fn v1(timestamp: u60, clock_seq: u14, node: [6]u8) UUID {
+    pub fn v1(timestamp: u60, clock_seq: u14, node_id: [6]u8) UUID {
         var bytes: [16]u8 = undefined;
 
         bytes[0] = @truncate((timestamp >> 24) & 0xFF);
@@ -86,12 +86,12 @@ pub const UUID = struct {
         bytes[8] = 0x80 | @as(u8, @truncate((clock_seq >> 8) & 0x3F));
         bytes[9] = @truncate(clock_seq & 0xFF);
 
-        bytes[10] = node[0];
-        bytes[11] = node[1];
-        bytes[12] = node[2];
-        bytes[13] = node[3];
-        bytes[14] = node[4];
-        bytes[15] = node[5];
+        bytes[10] = node_id[0];
+        bytes[11] = node_id[1];
+        bytes[12] = node_id[2];
+        bytes[13] = node_id[3];
+        bytes[14] = node_id[4];
+        bytes[15] = node_id[5];
 
         return .{ .bytes = bytes };
     }
@@ -112,7 +112,7 @@ pub const UUID = struct {
         return generateFromHash(.v5, &namespace.bytes, name);
     }
 
-    pub fn v6(timestamp: u60, clock_seq: u14, node: [6]u8) UUID {
+    pub fn v6(timestamp: u60, clock_seq: u14, node_id: [6]u8) UUID {
         var bytes: [16]u8 = undefined;
 
         bytes[0] = @truncate((timestamp >> 52) & 0xFF);
@@ -128,12 +128,12 @@ pub const UUID = struct {
         bytes[8] = 0x80 | @as(u8, @truncate((clock_seq >> 8) & 0x3F));
         bytes[9] = @truncate(clock_seq & 0xFF);
 
-        bytes[10] = node[0];
-        bytes[11] = node[1];
-        bytes[12] = node[2];
-        bytes[13] = node[3];
-        bytes[14] = node[4];
-        bytes[15] = node[5];
+        bytes[10] = node_id[0];
+        bytes[11] = node_id[1];
+        bytes[12] = node_id[2];
+        bytes[13] = node_id[3];
+        bytes[14] = node_id[4];
+        bytes[15] = node_id[5];
 
         return .{ .bytes = bytes };
     }
@@ -178,6 +178,71 @@ pub const UUID = struct {
         bytes[6] = 0x80 | (bytes[6] & 0x0F);
         bytes[8] = 0x80 | (bytes[8] & 0x3F);
         return .{ .bytes = bytes };
+    }
+
+    pub fn v2(domain: u8, local_id: u32, node_id: [6]u8) UUID {
+        var bytes: [16]u8 = undefined;
+
+        bytes[0] = 0;
+        bytes[1] = 0;
+        bytes[2] = 0;
+        bytes[3] = 0;
+
+        bytes[4] = @truncate((local_id >> 24) & 0xFF);
+        bytes[5] = @truncate((local_id >> 16) & 0xFF);
+        bytes[6] = 0x20 | @as(u8, @truncate((local_id >> 8) & 0x0F));
+        bytes[7] = @truncate(local_id & 0xFF);
+
+        bytes[8] = 0x80 | @as(u8, @truncate(domain & 0x3F));
+        bytes[9] = 0;
+
+        bytes[10] = node_id[0];
+        bytes[11] = node_id[1];
+        bytes[12] = node_id[2];
+        bytes[13] = node_id[3];
+        bytes[14] = node_id[4];
+        bytes[15] = node_id[5];
+
+        return .{ .bytes = bytes };
+    }
+
+    pub fn timestampV1(self: UUID) u60 {
+        return @as(u60, self.bytes[3]) |
+            (@as(u60, self.bytes[2]) << 8) |
+            (@as(u60, self.bytes[1]) << 16) |
+            (@as(u60, self.bytes[0]) << 24) |
+            (@as(u60, self.bytes[5]) << 32) |
+            (@as(u60, self.bytes[4]) << 40) |
+            (@as(u60, self.bytes[7] & 0xFF) << 48) |
+            (@as(u60, self.bytes[6] & 0x0F) << 56);
+    }
+
+    pub fn timestampV6(self: UUID) u60 {
+        return @as(u60, self.bytes[7]) |
+            (@as(u60, self.bytes[6] & 0x0F) << 8) |
+            (@as(u60, self.bytes[5]) << 12) |
+            (@as(u60, self.bytes[4]) << 20) |
+            (@as(u60, self.bytes[3]) << 28) |
+            (@as(u60, self.bytes[2]) << 36) |
+            (@as(u60, self.bytes[1]) << 44) |
+            (@as(u60, self.bytes[0]) << 52);
+    }
+
+    pub fn timestampV7(self: UUID) u48 {
+        return @as(u48, self.bytes[5]) |
+            (@as(u48, self.bytes[4]) << 8) |
+            (@as(u48, self.bytes[3]) << 16) |
+            (@as(u48, self.bytes[2]) << 24) |
+            (@as(u48, self.bytes[1]) << 32) |
+            (@as(u48, self.bytes[0]) << 40);
+    }
+
+    pub fn clockSeq(self: UUID) u14 {
+        return @as(u14, self.bytes[8] & 0x3F) << 8 | self.bytes[9];
+    }
+
+    pub fn node(self: UUID) [6]u8 {
+        return .{ self.bytes[10], self.bytes[11], self.bytes[12], self.bytes[13], self.bytes[14], self.bytes[15] };
     }
 
     pub fn generateFromHash(ver: Version, namespace: *const [16]u8, name: []const u8) UUID {
@@ -319,7 +384,40 @@ pub const UUID = struct {
         _ = self.encode(buf);
         return buf;
     }
+
+    pub fn sort(uuids: []UUID) void {
+        std.mem.sort(UUID, uuids, {}, struct {
+            fn lessThan(_: void, a: UUID, b: UUID) bool {
+                return a.compare(b) == .lt;
+            }
+        }.lessThan);
+    }
 };
+
+pub fn isValid(input: []const u8) bool {
+    if (input.len == 36) {
+        if (input[8] != '-' or input[13] != '-' or input[18] != '-' or input[23] != '-') return false;
+        for (input) |c| {
+            if (c == '-') continue;
+            if (!((c >= '0' and c <= '9') or (c >= 'a' and c <= 'f') or (c >= 'A' and c <= 'F'))) return false;
+        }
+        return true;
+    }
+    if (input.len == 32) {
+        for (input) |c| {
+            if (!((c >= '0' and c <= '9') or (c >= 'a' and c <= 'f') or (c >= 'A' and c <= 'F'))) return false;
+        }
+        return true;
+    }
+    if (input.len == 38 and input[0] == '{' and input[37] == '}') {
+        return isValid(input[1..37]);
+    }
+    if (input.len == 45) {
+        if (!std.mem.eql(u8, input[0..9], "urn:uuid:")) return false;
+        return isValid(input[9..45]);
+    }
+    return false;
+}
 
 test "nil UUID" {
     const testing = std.testing;
@@ -650,4 +748,91 @@ test "toString allocates" {
     try testing.expectEqual(@as(usize, 36), str.len);
     const parsed = @import("parse.zig").parse(str) catch unreachable;
     try testing.expect(id.eql(parsed));
+}
+
+test "UUID v2" {
+    const testing = std.testing;
+    const id = UUID.v2(1, 1000, .{ 0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF });
+    try testing.expectEqual(.v2, id.version());
+    try testing.expectEqual(.rfc, id.variant());
+    try testing.expectEqualSlices(u8, &[_]u8{ 0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF }, id.bytes[10..16]);
+}
+
+test "timestampV1 round-trip" {
+    const testing = std.testing;
+    const ts: u60 = 0x1EC9414C232AB00;
+    const id = UUID.v1(ts, 0x33C8, .{ 0x9F, 0x6B, 0xDE, 0xC7, 0x41, 0xFB });
+    try testing.expectEqual(ts, id.timestampV1());
+}
+
+test "timestampV6 round-trip" {
+    const testing = std.testing;
+    const ts: u60 = 0x1EC9414C232AB00;
+    const id = UUID.v6(ts, 0x33C8, .{ 0x9F, 0x6B, 0xDE, 0xC7, 0x41, 0xFB });
+    try testing.expectEqual(ts, id.timestampV6());
+}
+
+test "timestampV7 round-trip" {
+    const testing = std.testing;
+    const ts: u48 = 0x017F22E279B0;
+    const id = UUID.v7(ts, 0xCC3, .{ 0x18, 0xC4, 0xDC, 0x0C, 0x0C, 0x07, 0x39, 0x8F, 0x00, 0x00 });
+    try testing.expectEqual(ts, id.timestampV7());
+}
+
+test "clockSeq round-trip" {
+    const testing = std.testing;
+    const cs: u14 = 0x1234;
+    const id = UUID.v1(0, cs, .{0} ** 6);
+    try testing.expectEqual(cs, id.clockSeq());
+}
+
+test "node round-trip" {
+    const testing = std.testing;
+    const n = [_]u8{ 0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF };
+    const id = UUID.v1(0, 0, n);
+    try testing.expectEqualSlices(u8, &n, &id.node());
+}
+
+test "sort UUIDs" {
+    const testing = std.testing;
+    var ids = [_]UUID{
+        UUID.v3(@import("namespace.zig").Namespace.dns, "c.com"),
+        UUID.v3(@import("namespace.zig").Namespace.dns, "a.com"),
+        UUID.v3(@import("namespace.zig").Namespace.dns, "b.com"),
+    };
+    UUID.sort(&ids);
+    try testing.expect(ids[0].compare(ids[1]) == .lt);
+    try testing.expect(ids[1].compare(ids[2]) == .lt);
+}
+
+test "isValid canonical" {
+    const testing = std.testing;
+    try testing.expect(isValid("550e8400-e29b-41d4-a716-446655440000"));
+    try testing.expect(!isValid("550e8400-e29b-41d4-a716-44665544000"));
+    try testing.expect(!isValid("550e8400-e29b-41d4-a716-4466554400000"));
+    try testing.expect(!isValid("550e8400e29b-41d4-a716-446655440000"));
+}
+
+test "isValid compact" {
+    const testing = std.testing;
+    try testing.expect(isValid("550e8400e29b41d4a716446655440000"));
+    try testing.expect(!isValid("550e8400e29b41d4a71644665544000"));
+}
+
+test "isValid braced" {
+    const testing = std.testing;
+    try testing.expect(isValid("{550e8400-e29b-41d4-a716-446655440000}"));
+    try testing.expect(!isValid("{550e8400-e29b-41d4-a716-446655440000"));
+}
+
+test "isValid URN" {
+    const testing = std.testing;
+    try testing.expect(isValid("urn:uuid:550e8400-e29b-41d4-a716-446655440000"));
+    try testing.expect(!isValid("urn:uuid:550e8400-e29b-41d4-a716-44665544000"));
+}
+
+test "isValid invalid chars" {
+    const testing = std.testing;
+    try testing.expect(!isValid("gggggggg-gggg-gggg-gggg-gggggggggggg"));
+    try testing.expect(!isValid("550e8400-e29b-41d4-a716-44665544000g"));
 }

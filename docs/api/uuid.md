@@ -30,11 +30,12 @@ pub const UUID = struct {
 
 | Method | Signature | Description |
 |--------|-----------|-------------|
-| `v1` | `(timestamp: u60, clock_seq: u14, node: [6]u8) UUID` | Time-based |
+| `v1` | `(timestamp: u60, clock_seq: u14, node_id: [6]u8) UUID` | Time-based |
+| `v2` | `(domain: u8, local_id: u32, node_id: [6]u8) UUID` | DCE Security (POSIX UID/GID) |
 | `v3` | `(namespace: UUID, name: []const u8) UUID` | MD5 namespace |
 | `v4` | `(io: Io) Io.RandomSecureError!UUID` | Random |
 | `v5` | `(namespace: UUID, name: []const u8) UUID` | SHA-1 namespace |
-| `v6` | `(timestamp: u60, clock_seq: u14, node: [6]u8) UUID` | Reordered time |
+| `v6` | `(timestamp: u60, clock_seq: u14, node_id: [6]u8) UUID` | Reordered time |
 | `v7` | `(timestamp_ms: u48, rand_a: u12, rand_b: [10]u8) UUID` | Epoch time |
 | `v7Now` | `(io: Io) Io.RandomSecureError!UUID` | v7 with current time |
 | `v8` | `(custom: [16]u8) UUID` | Application-specific |
@@ -61,6 +62,16 @@ pub const UUID = struct {
 | `isMax` | `(self) bool` | Check if max UUID |
 | `hash` | `(self) u64` | Get hash |
 
+### Component Extraction
+
+| Method | Signature | Description |
+|--------|-----------|-------------|
+| `timestampV1` | `(self) u60` | Extract timestamp from v1 UUID |
+| `timestampV6` | `(self) u60` | Extract timestamp from v6 UUID |
+| `timestampV7` | `(self) u48` | Extract millisecond timestamp from v7 UUID |
+| `clockSeq` | `(self) u14` | Extract clock sequence from v1/v6 UUID |
+| `node` | `(self) [6]u8` | Extract node from v1/v6 UUID |
+
 ### Comparison
 
 | Method | Signature | Description |
@@ -77,8 +88,20 @@ pub const UUID = struct {
 | `toU128` | `(self) u128` | Convert to u128 |
 | `fromU128` | `(value: u128) UUID` | Create from u128 (static) |
 
+### Sorting
+
+| Method | Signature | Description |
+|--------|-----------|-------------|
+| `sort` | `(uuids: []UUID) void` | Sort UUIDs in-place (static) |
+
 ### Hash Generation
 
 | Method | Signature | Description |
 |--------|-----------|-------------|
 | `generateFromHash` | `(ver: Version, namespace: *const [16]u8, name: []const u8) UUID` | Hash-based generation |
+
+## Module Functions
+
+| Function | Signature | Description |
+|----------|-----------|-------------|
+| `isValid` | `(input: []const u8) bool` | Validate UUID string format |
