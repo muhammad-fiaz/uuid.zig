@@ -11,7 +11,7 @@ UUID formatting functions.
 | `encodeCompact` | `(self: *const UUID, buffer: []u8) []u8` | No dashes |
 | `encodeBraced` | `(self: *const UUID, buffer: []u8) []u8` | Wrapped in braces |
 | `encodeUrn` | `(self: *const UUID, buffer: []u8) []u8` | URN prefix |
-| `formatWriter` | `(self: *const UUID, writer: *Io.Writer) Io.Writer.Error!void` | Write to writer |
+| `format` | `(self: *const UUID, writer: *Io.Writer) Io.Writer.Error!void` | Write to writer |
 | `toString` | `(self: *const UUID, allocator: Allocator) Allocator.Error![]u8` | Allocated string |
 
 ## Buffer Sizes

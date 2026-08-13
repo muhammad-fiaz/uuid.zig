@@ -48,7 +48,7 @@ pub const UUID = struct {
 | `encodeCompact` | `(self, buffer: []u8) []u8` | Compact format |
 | `encodeBraced` | `(self, buffer: []u8) []u8` | Braced format |
 | `encodeUrn` | `(self, buffer: []u8) []u8` | URN format |
-| `formatWriter` | `(self, writer: *Io.Writer) Io.Writer.Error!void` | Write to writer |
+| `format` | `(self, writer: *Io.Writer) Io.Writer.Error!void` | Write to writer |
 | `toString` | `(self, allocator: Allocator) Allocator.Error![]u8` | Allocated string |
 
 ### Inspection

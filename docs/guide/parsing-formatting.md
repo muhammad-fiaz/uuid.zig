@@ -53,7 +53,7 @@ Write to any `std.Io.Writer`:
 
 ```zig
 var w: std.Io.Writer = .fixed(&buf);
-try id.formatWriter(&w);
+try id.format(&w);
 ```
 
 ## Allocated String

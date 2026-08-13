@@ -18,7 +18,7 @@ pub const Generator = struct {
 |--------|-----------|-------------|
 | `init` | `(allocator: Allocator, io: Io) Generator` | Create generator |
 | `v4` | `(self) Io.RandomSecureError!UUID` | Generate v4 |
-| `v7Now` | `(self) Io.RandomSecureError!UUID` | Generate v7 |
+| `v7` | `(self) Io.RandomSecureError!UUID` | Generate v7 |
 | `toString` | `(self, uuid: UUID) Allocator.Error![]u8` | UUID to string |
 
 ## Example

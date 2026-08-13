@@ -26,7 +26,7 @@ std.debug.print("UUID: {s}\n", .{str});
 ## When to Use
 
 - You need to allocate strings from UUIDs
-- You want a convenient wrapper around `UUID.v4` and `UUID.v7Now`
+- You want a convenient wrapper around `UUID.v4` and `UUID.v7`
 - You are building a higher-level API that manages its own allocator
 
 ## When Not to Use

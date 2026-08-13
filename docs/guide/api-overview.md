@@ -73,6 +73,7 @@ const urn = id.encodeUrn(&urn_buf);
 const version = id.version();   // .v4
 const variant = id.variant();   // .rfc
 const is_nil = id.isNil();      // false
+const is_max = id.isMax();      // false
 ```
 
 ## Compare
