@@ -372,11 +372,3 @@ Contributions are welcome! Please:
 ## License
 
 MIT License - see [LICENSE](LICENSE) for details.
-
-## Author
-
-Muhammad Fiaz
-
-## Documentation
-
-[https://muhammad-fiaz.github.io/uuid.zig](https://muhammad-fiaz.github.io/uuid.zig)
