@@ -9,7 +9,7 @@
 ## Method 1: Zig Fetch (Recommended)
 
 ```bash
-zig fetch --save https://github.com/muhammad-fiaz/uuid.zig/archive/refs/tags/v0.0.1.tar.gz
+zig fetch --save https://github.com/muhammad-fiaz/uuid.zig/archive/refs/tags/0.0.1.tar.gz
 ```
 
 ## Method 2: Zig Fetch (Main Branch)
@@ -25,7 +25,7 @@ Add the dependency to your `build.zig.zon`:
 ```zig
 .dependencies = .{
     .uuid = .{
-        .url = "https://github.com/muhammad-fiaz/uuid.zig/archive/refs/tags/v0.0.1.tar.gz",
+        .url = "https://github.com/muhammad-fiaz/uuid.zig/archive/refs/tags/0.0.1.tar.gz",
         .hash = "...", // Run `zig fetch --save <url>` to generate.
     },
 },
