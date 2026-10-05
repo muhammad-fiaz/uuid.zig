@@ -1,5 +1,15 @@
 # Security Policy
 
+## Supported Versions
+
+| Version | Zig toolchain | Status |
+|---------|---------------|--------|
+| `0.0.2` | `0.17.0` | Supported — receives security fixes |
+| `0.0.1` | `0.16.0` | Legacy — security fixes best-effort only |
+
+> [!NOTE]
+> If you are still on Zig 0.16.0, please upgrade to `uuid.zig` `0.0.2` with Zig 0.17.0 to receive security fixes.
+
 ## Reporting a Vulnerability
 
 If you discover a security vulnerability in uuid.zig, please report it responsibly.
@@ -8,17 +18,29 @@ If you discover a security vulnerability in uuid.zig, please report it responsib
 
 Please include:
 - Description of the vulnerability
-- Steps to reproduce
+- Affected version (`0.0.2` / `0.0.1`) and Zig version
+- Steps to reproduce (minimal Zig snippet where possible)
 - Potential impact
 - Suggested fix (if any)
 
+Please do not disclose the issue publicly until a fix has been released and coordinated with you.
+
 ## Response
 
-You can expect an initial response within 48 hours. We will work with you to understand and address the issue before any public disclosure.
+You can expect an initial response within 48 hours. We will work with you to understand and address the issue before any public disclosure. Fixes are released as patch versions on the `dev` branch and published to `main` through the normal release process.
 
 ## Scope
 
 This policy applies to the uuid.zig library hosted at [github.com/muhammad-fiaz/uuid.zig](https://github.com/muhammad-fiaz/uuid.zig).
+
+In scope:
+- UUID generation, parsing, formatting, and comparison in `src/`
+- Build packaging (`build.zig`, `build.zig.zon`) insofar as it affects consumers
+
+Out of scope:
+- Example programs in `examples/` (demonstration code, not hardened APIs)
+- Documentation site infrastructure in `docs/`
+- Vulnerabilities in the Zig toolchain or operating system entropy sources themselves
 
 ## UUIDs Are Not Security Tokens
 
@@ -32,7 +54,7 @@ Use appropriate cryptographic primitives for security-sensitive operations.
 
 ## Randomness vs Uniqueness
 
-- **UUID v4 and the random tail of v7** draw from `std.Io.randomSecure`. When the platform reports `EntropyUnavailable`, generation fails loudly instead of falling back to weak randomness.
+- **UUID v4 and the random tail of v7** draw from `std.Io.randomSecure`. When the platform reports `EntropyUnavailable`, generation fails loudly instead of falling back to weak randomness. Always propagate the returned error; never substitute a fallback value.
 - **UUID v1, v6, and custom-timestamp v7** are predictable by construction: anyone who knows the timestamp, node, or counter inputs can reproduce them. They provide ordering and uniqueness, not unpredictability.
 - **UUID v3 (MD5) and v5 (SHA-1)** are deterministic namespace hashes. MD5 and SHA-1 are collision-broken for adversarial inputs; here they serve only as stable name-to-UUID mappings per RFC 4122 / RFC 9562, never as integrity or password-hashing mechanisms.
 
