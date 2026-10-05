@@ -1,6 +1,6 @@
 # API Overview
 
-The `uuid.zig` public API re-exports all types and functions from its modular internals.
+The `uuid.zig` public API re-exports all types and functions from its flat `src/` modules.
 
 ## Types
 
@@ -11,7 +11,7 @@ The `uuid.zig` public API re-exports all types and functions from its modular in
 | `Variant` | Enum: `.ncs`, `.rfc`, `.microsoft`, `.future` |
 | `Namespace` | RFC 4122 namespace constants (`.dns`, `.url`, `.oid`, `.x500`) |
 | `ParseError` | Error set: `InvalidLength`, `InvalidFormat`, `InvalidCharacter` |
-| `Generator` | Allocator-aware wrapper for generation and string conversion |
+| `Generator` | Stateless factory borrowing an allocator and `std.Io` |
 
 ## Generate
 
@@ -29,16 +29,16 @@ const id = uuid.UUID.v3(uuid.Namespace.dns, "example.com");
 const id = uuid.UUID.v5(uuid.Namespace.dns, "example.com");
 
 // v1 (time-based)
-const id = uuid.UUID.v1(timestamp, clock_seq, node);
+const id = uuid.UUID.v1(timestamp, clockSequence, node);
 
 // v6 (reordered time-based)
-const id = uuid.UUID.v6(timestamp, clock_seq, node);
+const id = uuid.UUID.v6(timestamp, clockSequence, node);
 
 // v7 (custom timestamp)
-const id = uuid.UUID.v7(timestamp_ms, rand_a, rand_b);
+const id = uuid.UUID.v7(timestampMs, randA, randB);
 
 // v8 (application-specific)
-const id = uuid.UUID.v8(custom_bytes);
+const id = uuid.UUID.v8(customBytes);
 ```
 
 ## Parse
@@ -48,6 +48,14 @@ const id = try uuid.parse("550e8400-e29b-41d4-a716-446655440000");
 const id = try uuid.parseCompact("550e8400e29b41d4a716446655440000");
 const id = try uuid.parseBraced("{550e8400-e29b-41d4-a716-446655440000}");
 const id = try uuid.parseUrn("urn:uuid:550e8400-e29b-41d4-a716-446655440000");
+
+// Batch parse (caller owns the returned slice)
+const ids = try uuid.parseAll(&inputs, allocator);
+defer allocator.free(ids);
+
+// Delimited parse (caller owns the returned slice)
+const delimited = try uuid.parseMultiDelim("550e8400-e29b-41d4-a716-446655440000,6ba7b810-9dad-11d1-80b4-00c04fd430c8", ',', allocator);
+defer allocator.free(delimited);
 ```
 
 ## Format
@@ -57,23 +65,23 @@ var buf: [36]u8 = undefined;
 const canonical = id.encode(&buf);
 const uppercase = id.encodeUppercase(&buf);
 
-var compact_buf: [32]u8 = undefined;
-const compact = id.encodeCompact(&compact_buf);
+var compactBuf: [32]u8 = undefined;
+const compact = id.encodeCompact(&compactBuf);
 
-var braced_buf: [38]u8 = undefined;
-const braced = id.encodeBraced(&braced_buf);
+var bracedBuf: [38]u8 = undefined;
+const braced = id.encodeBraced(&bracedBuf);
 
-var urn_buf: [45]u8 = undefined;
-const urn = id.encodeUrn(&urn_buf);
+var urnBuf: [45]u8 = undefined;
+const urn = id.encodeUrn(&urnBuf);
 ```
 
 ## Inspect
 
 ```zig
-const version = id.version();   // .v4
-const variant = id.variant();   // .rfc
-const is_nil = id.isNil();      // false
-const is_max = id.isMax();      // false
+const version = id.version(); // .v4
+const variant = id.variant(); // .rfc
+const isNil = id.isNil(); // false
+const isMax = id.isMax(); // false
 ```
 
 ## Compare
@@ -86,16 +94,16 @@ const order = id1.compare(id2); // .lt, .eq, .gt
 ## Convert
 
 ```zig
-const bytes = id.toBytes();      // [16]u8
+const bytes = id.toBytes(); // [16]u8
 const id = uuid.UUID.fromBytes(bytes);
-const int = id.toU128();         // u128
+const int = id.toU128(); // u128
 const id = uuid.UUID.fromU128(int);
 ```
 
 ## Hash
 
 ```zig
-const hash_val = id.hash(); // u64
+const hashVal = id.hash(); // u64
 ```
 
 ## Generator
@@ -103,6 +111,6 @@ const hash_val = id.hash(); // u64
 ```zig
 const gen = uuid.Generator.init(allocator, io);
 const id = try gen.v4();
-const str = try gen.toString(id);
+const str = try gen.toStringAlloc(id);
 defer allocator.free(str);
 ```

@@ -1,6 +1,6 @@
 # Generator
 
-The `Generator` type provides an allocator-aware wrapper for UUID operations that need to allocate memory.
+The `Generator` type provides a stateless factory for UUID operations that need an allocator or `std.Io` context.
 
 ## Initialization
 
@@ -8,23 +8,26 @@ The `Generator` type provides an allocator-aware wrapper for UUID operations tha
 const gen = uuid.Generator.init(allocator, io);
 ```
 
+> [!NOTE]
+> The generator borrows both values without taking ownership. Both must outlive the generator.
+
 ## Generate
 
 ```zig
-const id = gen.v1(timestamp, clock_seq, node);  // Time-based
-const id = gen.v3(namespace, name);             // MD5 namespace
-const id = try gen.v4();                         // Random
-const id = gen.v5(namespace, name);             // SHA-1 namespace
-const id = gen.v6(timestamp, clock_seq, node);  // Reordered time
-const id = try gen.v7();                         // Time-ordered
-const id = gen.v7WithTimestamp(ts, rand_a, rand_b); // v7 with custom timestamp
-const id = gen.v8(custom_bytes);                // Application-specific
+const id = gen.v1(timestamp, clockSequence, node); // Time-based
+const id = gen.v3(namespace, name); // MD5 namespace
+const id = try gen.v4(); // Random
+const id = gen.v5(namespace, name); // SHA-1 namespace
+const id = gen.v6(timestamp, clockSequence, node); // Reordered time
+const id = try gen.v7(); // Time-ordered
+const id = gen.v7WithTimestamp(timestampMs, randA, randB); // v7 with custom timestamp
+const id = gen.v8(customBytes); // Application-specific
 ```
 
 ## String Conversion
 
 ```zig
-const str = try gen.toString(id);
+const str = try gen.toStringAlloc(id);
 defer allocator.free(str);
 std.debug.print("UUID: {s}\n", .{str});
 ```
@@ -45,6 +48,6 @@ var buf: [36]u8 = undefined;
 const str = id.encode(&buf);
 
 // With allocation - use Generator
-const str = try gen.toString(id);
+const str = try gen.toStringAlloc(id);
 defer allocator.free(str);
 ```

@@ -24,4 +24,4 @@ pub const Variant = enum {
 
 | Method | Signature | Description |
 |--------|-----------|-------------|
-| `fromByte` | `(b: u8) Variant` | Determine variant from byte |
+| `fromByte` | `(byte: u8) Variant` | Determine variant from byte |

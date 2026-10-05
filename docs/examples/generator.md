@@ -17,6 +17,8 @@ pub fn main() !void {
     defer threaded.deinit();
     const io = threaded.io();
 
+    std.debug.print("=== UUID Generator (All Methods) ===\n\n", .{});
+
     const gen = uuid.Generator.init(allocator, io);
 
     // v1 - Time-based
@@ -45,15 +47,15 @@ pub fn main() !void {
     std.debug.print("v7: {s}\n", .{id7.encode(&buf)});
 
     // v7 with custom timestamp
-    const id7_custom = gen.v7WithTimestamp(0x017F22E279B0, 0xCC3, .{ 0x18, 0xC4, 0xDC, 0x0C, 0x0C, 0x07, 0x39, 0x8F, 0x00, 0x00 });
-    std.debug.print("v7 (custom): {s}\n", .{id7_custom.encode(&buf)});
+    const id7Custom = gen.v7WithTimestamp(0x017F22E279B0, 0xCC3, .{ 0x18, 0xC4, 0xDC, 0x0C, 0x0C, 0x07, 0x39, 0x8F, 0x00, 0x00 });
+    std.debug.print("v7 (custom): {s}\n", .{id7Custom.encode(&buf)});
 
     // v8 - Application-specific
     const id8 = gen.v8(.{ 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F, 0x10 });
     std.debug.print("v8: {s}\n", .{id8.encode(&buf)});
 
-    // toString - Allocated string
-    const str = try gen.toString(id4);
+    // toStringAlloc - Allocated string (caller owns memory)
+    const str = try gen.toStringAlloc(id4);
     defer allocator.free(str);
     std.debug.print("\nAllocated string: {s}\n", .{str});
 }
@@ -64,3 +66,23 @@ pub fn main() !void {
 ```bash
 zig build run-generator
 ```
+
+## Output
+
+```text
+=== UUID Generator (All Methods) ===
+
+v1: c232ab00-9414-11ec-b3c8-9f6bdec741fb
+v3: 9073926b-929f-31c2-abc9-fad77ae3e8eb
+v4: aa2b92d3-30c5-4249-9510-a8a31da56d1f
+v5: cfbff0d1-9375-5685-968c-48ce8b15ae17
+v6: 1ec9414c-232a-6b00-b3c8-9f6bdec741fb
+v7: 01a10ae8-3027-71b8-aa0d-42f41464a623
+v7 (custom): 017f22e2-79b0-7cc3-98c4-dc0c0c07398f
+v8: 01020304-0506-8708-890a-0b0c0d0e0f10
+
+Allocated string: aa2b92d3-30c5-4249-9510-a8a31da56d1f
+```
+
+> [!NOTE]
+> The `v4` and `v7` lines embed fresh randomness and time, so they differ on every run. The `Allocated string` repeats the generated v4 value.

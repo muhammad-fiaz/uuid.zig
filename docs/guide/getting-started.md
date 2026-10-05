@@ -1,6 +1,9 @@
 # Getting Started
 
-`uuid.zig` is a production-ready UUID library for Zig 0.16.0. It provides generation, parsing, formatting, and comparison for all standard UUID versions.
+`uuid.zig` is a production-ready UUID library for Zig 0.17.0. It provides generation, parsing, formatting, and comparison for all standard UUID versions.
+
+> [!NOTE]
+> For Zig 0.16.0, use `uuid.zig` version `0.0.1`.
 
 ## Quick Example
 

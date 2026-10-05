@@ -1,8 +1,28 @@
+//! Strict UUID string decoding.
+//!
+//! All entry points borrow their input and copy the decoded 128-bit value
+//! into the returned `UUID`. No I/O context is required.
+//!
+//! Accepted representations:
+//! - canonical hyphenated (`xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx`)
+//! - compact without hyphens (32 hex digits)
+//! - braced (`{` + canonical + `}`)
+//! - URN (`urn:uuid:` + canonical)
+//!
+//! Hex digits may be upper- or lowercase on input; output elsewhere is
+//! lowercase unless an explicit uppercase formatter is used.
+
 const std = @import("std");
 const UUID = @import("core.zig").UUID;
 const ParseError = @import("errors.zig").ParseError;
 const hexToByte = @import("hex.zig").hexToByte;
 
+/// Decodes a canonical hyphenated UUID string.
+///
+/// The input is borrowed and must be exactly 36 bytes with hyphens at
+/// offsets 8, 13, 18, and 23. Returns `error.InvalidLength` for any other
+/// length, `error.InvalidFormat` for misplaced hyphens, and
+/// `error.InvalidCharacter` for non-hex digits.
 pub fn parse(input: []const u8) ParseError!UUID {
     if (input.len != 36) return error.InvalidLength;
 
@@ -22,27 +42,49 @@ pub fn parse(input: []const u8) ParseError!UUID {
     return .{ .bytes = result };
 }
 
+/// Decodes a 32-digit compact UUID string without hyphens.
+///
+/// The input is borrowed. Returns `error.InvalidLength` unless it is
+/// exactly 32 bytes, and `error.InvalidCharacter` for non-hex digits.
 pub fn parseCompact(input: []const u8) ParseError!UUID {
     if (input.len != 32) return error.InvalidLength;
 
     var result: [16]u8 = undefined;
     for (0..16) |i| {
-        result[i] = try hexToByte(input[i * 2]) * 16 + try hexToByte(input[i * 2 + 1]);
+        const hi = try hexToByte(input[i * 2]);
+        const lo = try hexToByte(input[i * 2 + 1]);
+        result[i] = (hi << 4) | lo;
     }
     return .{ .bytes = result };
 }
 
+/// Decodes a braced UUID (`{` + canonical + `}`).
+///
+/// The input is borrowed and must be exactly 38 bytes. Returns
+/// `error.InvalidFormat` for missing braces and delegates hyphen and digit
+/// validation to `parse`.
 pub fn parseBraced(input: []const u8) ParseError!UUID {
     if (input.len != 38 or input[0] != '{' or input[37] != '}') return error.InvalidFormat;
     return parse(input[1..37]);
 }
 
+/// Decodes a URN UUID (`urn:uuid:` + canonical).
+///
+/// The input is borrowed and must be exactly 45 bytes with a lowercase
+/// `urn:uuid:` prefix. Returns `error.InvalidLength` for any other length
+/// and `error.InvalidFormat` for a wrong prefix.
 pub fn parseUrn(input: []const u8) ParseError!UUID {
     if (input.len != 45) return error.InvalidLength;
     if (!std.mem.eql(u8, input[0..9], "urn:uuid:")) return error.InvalidFormat;
     return parse(input[9..45]);
 }
 
+/// Decodes each canonical UUID string in `inputs`.
+///
+/// `inputs` is borrowed. The returned slice is owned by the caller and uses
+/// `allocator` (borrowed); free it with `allocator.free` when done. Frees
+/// partial state on error before propagating either `Allocator.Error` or
+/// the parsing failure.
 pub fn parseAll(inputs: []const []const u8, allocator: std.mem.Allocator) (std.mem.Allocator.Error || ParseError)![]UUID {
     const ids = try allocator.alloc(UUID, inputs.len);
     errdefer allocator.free(ids);
@@ -52,21 +94,30 @@ pub fn parseAll(inputs: []const []const u8, allocator: std.mem.Allocator) (std.m
     return ids;
 }
 
-pub fn parseMultiDelim(input: []const u8, delimiter: u8) ParseError![]UUID {
-    var list = std.ArrayListUnmanaged(UUID){};
+/// Splits `input` on `delimiter` and decodes each canonical UUID segment.
+///
+/// `input` is borrowed. The returned slice is owned by the caller and uses
+/// `allocator` (borrowed); free it with `allocator.free` when done. An
+/// empty trailing segment is ignored; any other empty or malformed segment
+/// returns the underlying `ParseError`. Frees partial state on error.
+pub fn parseMultiDelim(input: []const u8, delimiter: u8, allocator: std.mem.Allocator) (std.mem.Allocator.Error || ParseError)![]UUID {
+    var list: std.ArrayList(UUID) = .empty;
+    errdefer list.deinit(allocator);
     var start: usize = 0;
     for (input, 0..) |c, i| {
         if (c == delimiter) {
-            const id = try parse(input[start..i]);
-            try list.append(std.heap.page_allocator, id);
+            if (i > start) {
+                const id = try parse(input[start..i]);
+                try list.append(allocator, id);
+            }
             start = i + 1;
         }
     }
     if (start < input.len) {
         const id = try parse(input[start..]);
-        try list.append(std.heap.page_allocator, id);
+        try list.append(allocator, id);
     }
-    return list.items;
+    return list.toOwnedSlice(allocator);
 }
 
 test "parse canonical" {
@@ -172,4 +223,45 @@ test "round-trip compact parse encode" {
     const parsed = try parseCompact(compact);
     var out: [32]u8 = undefined;
     try testing.expectEqualStrings(compact, parsed.encodeCompact(&out));
+}
+
+test "parseAll allocates" {
+    const testing = std.testing;
+    const inputs = [_][]const u8{
+        "550e8400-e29b-41d4-a716-446655440000",
+        "6ba7b810-9dad-11d1-80b4-00c04fd430c8",
+    };
+    const ids = try parseAll(&inputs, testing.allocator);
+    defer testing.allocator.free(ids);
+    try testing.expectEqual(@as(usize, 2), ids.len);
+    try testing.expectEqual(.v4, ids[0].version());
+}
+
+test "parseAll propagates parse error" {
+    const testing = std.testing;
+    const inputs = [_][]const u8{
+        "550e8400-e29b-41d4-a716-446655440000",
+        "not-a-uuid",
+    };
+    try testing.expectError(error.InvalidLength, parseAll(&inputs, testing.allocator));
+}
+
+test "parseMultiDelim splits and decodes" {
+    const testing = std.testing;
+    const ids = try parseMultiDelim(
+        "550e8400-e29b-41d4-a716-446655440000,6ba7b810-9dad-11d1-80b4-00c04fd430c8",
+        ',',
+        testing.allocator,
+    );
+    defer testing.allocator.free(ids);
+    try testing.expectEqual(@as(usize, 2), ids.len);
+    try testing.expectEqual(.v4, ids[0].version());
+}
+
+test "parseMultiDelim propagates parse error" {
+    const testing = std.testing;
+    try testing.expectError(
+        error.InvalidLength,
+        parseMultiDelim("550e8400-e29b-41d4-a716-446655440000,short", ',', testing.allocator),
+    );
 }

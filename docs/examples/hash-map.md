@@ -1,6 +1,6 @@
 # Hash Map
 
-Use UUIDs as hash map keys.
+Use UUID values as `std.AutoHashMap` keys.
 
 ## Code
 
@@ -17,17 +17,30 @@ pub fn main() !void {
     defer threaded.deinit();
     const io = threaded.io();
 
+    std.debug.print("=== UUID in Hash Maps ===\n\n", .{});
+
     var map = std.AutoHashMap(uuid.UUID, []const u8).init(allocator);
     defer map.deinit();
 
-    const user_id = try uuid.UUID.v4(io);
-    const session_id = try uuid.UUID.v4(io);
+    const userId = try uuid.UUID.v4(io);
+    const sessionId = try uuid.UUID.v4(io);
 
-    try map.put(user_id, "user@example.com");
-    try map.put(session_id, "session_abc123");
+    try map.put(userId, "user@example.com");
+    try map.put(sessionId, "session_abc123");
 
-    if (map.get(user_id)) |email| {
-        std.debug.print("Found: {s}\n", .{email});
+    var buf: [36]u8 = undefined;
+    std.debug.print("User ID: {s}\n", .{userId.encode(&buf)});
+    std.debug.print("Session ID: {s}\n", .{sessionId.encode(&buf)});
+
+    std.debug.print("\nLooking up userId...\n", .{});
+    if (map.get(userId)) |email| {
+        std.debug.print("  Found: {s}\n", .{email});
+    }
+
+    std.debug.print("\nAll entries:\n", .{});
+    var iter = map.iterator();
+    while (iter.next()) |entry| {
+        std.debug.print("  {s} -> {s}\n", .{ entry.key_ptr.encode(&buf), entry.value_ptr.* });
     }
 }
 ```
@@ -38,7 +51,21 @@ pub fn main() !void {
 zig build run-hash-map
 ```
 
-## Notes
+## Output
 
-- `UUID` implements `hash()`, so it works directly as an `AutoHashMap` key without conversion to strings.
-- Hashing operates on the raw 16-byte representation, with no allocation.
+```text
+=== UUID in Hash Maps ===
+
+User ID: 0fecdd59-06a7-4194-9c1a-65b1a6559866
+Session ID: eff07381-4834-4c99-9c67-51da30592094
+
+Looking up userId...
+  Found: user@example.com
+
+All entries:
+  eff07381-4834-4c99-9c67-51da30592094 -> session_abc123
+  0fecdd59-06a7-4194-9c1a-65b1a6559866 -> user@example.com
+```
+
+> [!NOTE]
+> Both UUIDs are freshly generated, so values and iteration order differ on every run.

@@ -28,16 +28,16 @@ const id = uuid.UUID.fromBytes(bytes);
 
 ```zig
 // To u128
-const int_val = id.toU128(); // u128
+const intVal = id.toU128(); // u128
 
 // From u128
-const id = uuid.UUID.fromU128(int_val);
+const id = uuid.UUID.fromU128(intVal);
 ```
 
 ## Hashing
 
 ```zig
-const hash_val = id.hash(); // u64
+const hashVal = id.hash(); // u64
 ```
 
 Useful for hash maps:
@@ -50,7 +50,7 @@ try map.put(id, value);
 ## Version & Variant Inspection
 
 ```zig
-const version = id.version();   // .v1, .v3, .v4, .v5, .v6, .v7, .v8, .nil, .unknown
-const variant = id.variant();   // .ncs, .rfc, .microsoft, .future
-const is_nil = id.isNil();      // true/false
+const version = id.version(); // .v1, .v3, .v4, .v5, .v6, .v7, .v8, .nil, .unknown
+const variant = id.variant(); // .ncs, .rfc, .microsoft, .future
+const isNil = id.isNil(); // true/false
 ```

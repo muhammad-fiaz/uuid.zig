@@ -12,14 +12,14 @@ pub fn main() !void {
     std.debug.print("X500: {s}\n", .{uuid.Namespace.x500.encode(&buf)});
 
     std.debug.print("\nUsing namespaces with v3 (MD5):\n", .{});
-    const id_dns = uuid.UUID.v3(uuid.Namespace.dns, "www.example.com");
-    const id_url = uuid.UUID.v3(uuid.Namespace.url, "www.example.com");
-    std.debug.print("  DNS + www.example.com: {s}\n", .{id_dns.encode(&buf)});
-    std.debug.print("  URL + www.example.com: {s}\n", .{id_url.encode(&buf)});
+    const idDns = uuid.UUID.v3(uuid.Namespace.dns, "www.example.com");
+    const idUrl = uuid.UUID.v3(uuid.Namespace.url, "www.example.com");
+    std.debug.print("  DNS + www.example.com: {s}\n", .{idDns.encode(&buf)});
+    std.debug.print("  URL + www.example.com: {s}\n", .{idUrl.encode(&buf)});
 
     std.debug.print("\nUsing namespaces with v5 (SHA-1):\n", .{});
-    const id5_dns = uuid.UUID.v5(uuid.Namespace.dns, "www.example.com");
-    const id5_url = uuid.UUID.v5(uuid.Namespace.url, "www.example.com");
-    std.debug.print("  DNS + www.example.com: {s}\n", .{id5_dns.encode(&buf)});
-    std.debug.print("  URL + www.example.com: {s}\n", .{id5_url.encode(&buf)});
+    const id5Dns = uuid.UUID.v5(uuid.Namespace.dns, "www.example.com");
+    const id5Url = uuid.UUID.v5(uuid.Namespace.url, "www.example.com");
+    std.debug.print("  DNS + www.example.com: {s}\n", .{id5Dns.encode(&buf)});
+    std.debug.print("  URL + www.example.com: {s}\n", .{id5Url.encode(&buf)});
 }

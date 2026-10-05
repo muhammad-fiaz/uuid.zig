@@ -195,7 +195,7 @@ gtag('config', '${GA_ID}');`,
           "priceCurrency": "USD"
         },
         "downloadUrl": "https://github.com/muhammad-fiaz/uuid.zig",
-        "softwareVersion": "0.0.1",
+        "softwareVersion": "0.0.2",
         "license": "https://opensource.org/licenses/MIT"
       });
     } else {

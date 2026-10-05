@@ -31,5 +31,5 @@ pub const Version = enum {
 
 | Method | Signature | Description |
 |--------|-----------|-------------|
-| `toInt` | `(v: Version) u8` | Convert to integer |
+| `toInt` | `(self: Version) u8` | Convert to integer |
 | `fromInt` | `(value: u8) Version` | Create from integer |

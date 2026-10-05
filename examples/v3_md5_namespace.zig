@@ -6,17 +6,17 @@ pub fn main() !void {
 
     var buf: [36]u8 = undefined;
 
-    const id_dns = uuid.UUID.v3(uuid.Namespace.dns, "www.example.com");
-    std.debug.print("DNS + www.example.com: {s}\n", .{id_dns.encode(&buf)});
+    const idDns = uuid.UUID.v3(uuid.Namespace.dns, "www.example.com");
+    std.debug.print("DNS + www.example.com: {s}\n", .{idDns.encode(&buf)});
 
-    const id_url = uuid.UUID.v3(uuid.Namespace.url, "www.example.com");
-    std.debug.print("URL + www.example.com: {s}\n", .{id_url.encode(&buf)});
+    const idUrl = uuid.UUID.v3(uuid.Namespace.url, "www.example.com");
+    std.debug.print("URL + www.example.com: {s}\n", .{idUrl.encode(&buf)});
 
-    const id_oid = uuid.UUID.v3(uuid.Namespace.oid, "www.example.com");
-    std.debug.print("OID + www.example.com: {s}\n", .{id_oid.encode(&buf)});
+    const idOid = uuid.UUID.v3(uuid.Namespace.oid, "www.example.com");
+    std.debug.print("OID + www.example.com: {s}\n", .{idOid.encode(&buf)});
 
-    const id_x500 = uuid.UUID.v3(uuid.Namespace.x500, "www.example.com");
-    std.debug.print("X500 + www.example.com: {s}\n", .{id_x500.encode(&buf)});
+    const idX500 = uuid.UUID.v3(uuid.Namespace.x500, "www.example.com");
+    std.debug.print("X500 + www.example.com: {s}\n", .{idX500.encode(&buf)});
 
     std.debug.print("\nDeterministic - same input produces same UUID:\n", .{});
     const id1 = uuid.UUID.v3(uuid.Namespace.dns, "example.com");

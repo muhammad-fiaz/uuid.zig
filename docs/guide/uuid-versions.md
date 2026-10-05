@@ -7,7 +7,15 @@
 Uses a 60-bit timestamp, 14-bit clock sequence, and 6-byte node.
 
 ```zig
-const id = uuid.UUID.v1(timestamp, clock_seq, node);
+const id = uuid.UUID.v1(timestamp, clockSequence, node);
+```
+
+## v2 - DCE Security
+
+Uses a local domain, local identifier, and 6-byte node.
+
+```zig
+const id = uuid.UUID.v2(domain, localId, node);
 ```
 
 ## v3 - MD5 Namespace
@@ -39,7 +47,7 @@ const id = uuid.UUID.v5(uuid.Namespace.dns, "www.example.com");
 Like v1 but with reordered time fields for better database indexing.
 
 ```zig
-const id = uuid.UUID.v6(timestamp, clock_seq, node);
+const id = uuid.UUID.v6(timestamp, clockSequence, node);
 ```
 
 ## v7 - Unix Epoch Time-Based
@@ -51,7 +59,7 @@ Time-ordered UUID with millisecond timestamp and random bits.
 const id = try uuid.UUID.v7Now(io);
 
 // Custom timestamp
-const id = uuid.UUID.v7(timestamp_ms, rand_a, rand_b);
+const id = uuid.UUID.v7(timestampMs, randA, randB);
 ```
 
 ## v8 - Application-Specific
@@ -70,7 +78,16 @@ The zero UUID: `00000000-0000-0000-0000-000000000000`.
 
 ```zig
 const nil = uuid.UUID.nil;
-const is_nil = nil.isNil(); // true
+const isNil = nil.isNil(); // true
+```
+
+## Max UUID
+
+The max UUID: `ffffffff-ffff-ffff-ffff-ffffffffffff`.
+
+```zig
+const max = uuid.UUID.max;
+const isMax = max.isMax(); // true
 ```
 
 ## Namespace Constants

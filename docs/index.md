@@ -4,7 +4,7 @@ layout: home
 hero:
   name: uuid.zig
   text: UUID Library for Zig
-  tagline: Production-ready, high-performance UUID generation, parsing, and formatting for Zig 0.16.0.
+  tagline: Production-ready, high-performance UUID generation, parsing, and formatting for Zig 0.17.0.
   actions:
     - theme: brand
       text: Get Started

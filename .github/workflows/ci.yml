@@ -2,22 +2,98 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    branches: [main, dev]
   pull_request:
-    branches: [main]
+    branches: [main, dev]
+
+permissions:
+  contents: read
 
 jobs:
   test:
+    name: Test (Zig 0.17.0, ${{ matrix.optimize }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        optimize: ['Debug', 'ReleaseFast']
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: mlugg/setup-zig@v2
+        with:
+          version: '0.17.0'
+
+      - name: Build (${{ matrix.optimize }})
+        run: zig build -Doptimize=${{ matrix.optimize }}
+
+      - name: Test (${{ matrix.optimize }})
+        run: zig build test --summary all -Doptimize=${{ matrix.optimize }}
+
+  lint:
+    name: Lint
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v7
 
       - uses: mlugg/setup-zig@v2
         with:
-          version: 0.16.0
+          version: '0.17.0'
 
-      - name: Run tests
-        run: zig build test
+      - name: Check formatting
+        run: zig fmt --check .
+
+      - name: Build docs
+        run: zig build docs
+
+  examples:
+    name: Examples
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: mlugg/setup-zig@v2
+        with:
+          version: '0.17.0'
 
       - name: Run all examples
         run: zig build run-all-examples
+
+  cross:
+    name: Cross-compile (${{ matrix.target }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        target:
+          # 64-bit desktop and server (x86_64, aarch64)
+          ['x86_64-linux', 'x86_64-windows', 'x86_64-macos',
+            'aarch64-linux', 'aarch64-windows', 'aarch64-macos',
+            # 32-bit x86
+            'x86-linux', 'x86-windows',
+            # 32-bit ARM (little- and big-endian)
+            'arm-linux', 'thumb-linux', 'armeb-linux',
+            # RISC-V and LoongArch 64-bit
+            'riscv64-linux', 'loongarch64-linux',
+            # PowerPC 32-bit and 64-bit
+            'powerpc-linux', 'powerpc64-linux',
+            # IBM Z, MIPS, SPARC 64-bit
+            's390x-linux', 'mips64-linux', 'mips-linux', 'sparc64-linux',
+            # BSD family
+            'x86_64-freebsd', 'aarch64-freebsd',
+            'x86_64-openbsd', 'aarch64-openbsd',
+            'x86_64-netbsd', 'aarch64-netbsd',
+            'x86_64-dragonfly',
+            # Other operating systems
+            'x86_64-haiku', 'x86_64-illumos',
+            'x86_64-ios', 'aarch64-ios',
+            'wasm32-wasi']
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: mlugg/setup-zig@v2
+        with:
+          version: '0.17.0'
+
+      - name: Build for ${{ matrix.target }}
+        run: zig build -Dtarget=${{ matrix.target }}

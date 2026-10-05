@@ -29,8 +29,8 @@ pub fn main() !void {
     std.debug.print("Restored: {s}\n", .{restored.encode(&buf)});
     std.debug.print("Equal: {}\n", .{id1.eql(restored)});
 
-    const int_val = id1.toU128();
-    const from_int = uuid.UUID.fromU128(int_val);
-    std.debug.print("From u128: {s}\n", .{from_int.encode(&buf)});
+    const intVal = id1.toU128();
+    const fromInt = uuid.UUID.fromU128(intVal);
+    std.debug.print("From u128: {s}\n", .{fromInt.encode(&buf)});
     std.debug.print("Hash: {d}\n", .{id1.hash()});
 }

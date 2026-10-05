@@ -1,56 +1,81 @@
+//! Convenience generator bundling an allocator with an I/O context.
+//!
+//! `Generator` itself holds no mutable UUID state; every `v*` method is a
+//! thin wrapper over the corresponding `UUID` constructor. A single instance
+//! may be shared across threads provided the borrowed `allocator` and `io`
+//! are safe for concurrent use. Only `toStringAlloc` allocates.
+
 const std = @import("std");
 const Allocator = std.mem.Allocator;
 const Io = std.Io;
 const UUID = @import("core.zig").UUID;
 
+/// Stateless UUID factory.
+///
+/// `allocator` is borrowed and used only by `toStringAlloc`; `io` is
+/// borrowed and used only by entropy/time methods (`v4`, `v7`). Neither is
+/// destroyed by the generator, and both must outlive it.
 pub const Generator = struct {
     allocator: Allocator,
     io: Io,
 
+    /// Borrows `allocator` and `io` without taking ownership of either.
     pub fn init(allocator: Allocator, io: Io) Generator {
         return .{ .allocator = allocator, .io = io };
     }
 
-    pub fn v1(self: Generator, timestamp: u60, clock_seq: u14, node: [6]u8) UUID {
+    /// Time-based (v1) UUID. Pure; ignores receiver state.
+    pub fn v1(self: Generator, timestamp: u60, clockSequence: u14, nodeId: [6]u8) UUID {
         _ = self;
-        return UUID.v1(timestamp, clock_seq, node);
+        return UUID.v1(timestamp, clockSequence, nodeId);
     }
 
+    /// Deterministic (v3) UUID. Pure; ignores receiver state.
     pub fn v3(self: Generator, namespace: UUID, name: []const u8) UUID {
         _ = self;
         return UUID.v3(namespace, name);
     }
 
+    /// Random (v4) UUID via the generator's borrowed `io`.
     pub fn v4(self: Generator) Io.RandomSecureError!UUID {
         return UUID.v4(self.io);
     }
 
+    /// Deterministic (v5) UUID. Pure; ignores receiver state.
     pub fn v5(self: Generator, namespace: UUID, name: []const u8) UUID {
         _ = self;
         return UUID.v5(namespace, name);
     }
 
-    pub fn v6(self: Generator, timestamp: u60, clock_seq: u14, node: [6]u8) UUID {
+    /// Reordered time-based (v6) UUID. Pure; ignores receiver state.
+    pub fn v6(self: Generator, timestamp: u60, clockSequence: u14, nodeId: [6]u8) UUID {
         _ = self;
-        return UUID.v6(timestamp, clock_seq, node);
+        return UUID.v6(timestamp, clockSequence, nodeId);
     }
 
+    /// Time-ordered (v7) UUID using current time via the generator's `io`.
     pub fn v7(self: Generator) Io.RandomSecureError!UUID {
         return UUID.v7Now(self.io);
     }
 
-    pub fn v7WithTimestamp(self: Generator, timestamp_ms: u48, rand_a: u12, rand_b: [10]u8) UUID {
+    /// Time-ordered (v7) UUID from explicit components. Pure.
+    pub fn v7WithTimestamp(self: Generator, timestampMs: u48, randA: u12, randB: [10]u8) UUID {
         _ = self;
-        return UUID.v7(timestamp_ms, rand_a, rand_b);
+        return UUID.v7(timestampMs, randA, randB);
     }
 
+    /// Application-specific (v8) UUID. Pure; ignores receiver state.
     pub fn v8(self: Generator, custom: [16]u8) UUID {
         _ = self;
         return UUID.v8(custom);
     }
 
-    pub fn toString(self: Generator, uuid: UUID) Allocator.Error![]u8 {
-        return uuid.toString(self.allocator);
+    /// Allocates the canonical string for `uuid` with the generator's allocator.
+    ///
+    /// The returned 36-byte slice is owned by the caller; free it with the
+    /// same allocator when done.
+    pub fn toStringAlloc(self: Generator, uuid: UUID) Allocator.Error![]u8 {
+        return uuid.toStringAlloc(self.allocator);
     }
 };
 
@@ -104,6 +129,14 @@ test "Generator v7" {
     try testing.expectEqual(.v7, id.version());
 }
 
+test "Generator v7WithTimestamp" {
+    const testing = std.testing;
+    const io: Io = std.testing.io;
+    const gen = Generator.init(testing.allocator, io);
+    const id = gen.v7WithTimestamp(0x017F22E279B0, 0xCC3, .{ 0x18, 0xC4, 0xDC, 0x0C, 0x0C, 0x07, 0x39, 0x8F, 0x00, 0x00 });
+    try testing.expectEqual(.v7, id.version());
+}
+
 test "Generator v8" {
     const testing = std.testing;
     const io: Io = std.testing.io;
@@ -112,12 +145,12 @@ test "Generator v8" {
     try testing.expectEqual(.v8, id.version());
 }
 
-test "Generator toString" {
+test "Generator toStringAlloc" {
     const testing = std.testing;
     const io: Io = std.testing.io;
     const gen = Generator.init(testing.allocator, io);
     const id = try gen.v4();
-    const str = try gen.toString(id);
+    const str = try gen.toStringAlloc(id);
     defer testing.allocator.free(str);
     try testing.expectEqual(@as(usize, 36), str.len);
 }

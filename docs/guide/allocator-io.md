@@ -1,19 +1,19 @@
 # Allocator and Io Model
 
-`uuid.zig` follows Zig 0.16 conventions: one explicit allocator and one explicit `std.Io` instance for random UUID generation.
+`uuid.zig` follows Zig 0.17.0 conventions: one explicit allocator and one explicit `std.Io` instance for random UUID generation.
 
 ## Allocator Model
 
 There is a single allocator type: `std.mem.Allocator`.
 
 - **Allocation-free operations**: generation into an existing `UUID`, parsing, validation, comparison, equality, hashing, version/variant detection, nil detection, raw byte conversion, and fixed-buffer formatting never allocate.
-- **Allocator-backed operations**: only APIs that return owned, dynamically sized data allocate. These use the allocator you supply through the `Generator`.
+- **Allocator-backed operations**: only APIs that return owned, dynamically sized data allocate: `UUID.toStringAlloc`, `parseAll`, `parseMultiDelim`, and `Generator.toStringAlloc`. These borrow the allocator you supply.
 
 No hidden allocator is ever created. The library never deinitializes your allocator — it remains owned by the caller.
 
 ```zig
 const gen = uuid.Generator.init(allocator, io);
-const str = try gen.toString(id);
+const str = try gen.toStringAlloc(id);
 defer allocator.free(str); // caller frees, caller's allocator
 ```
 
@@ -21,7 +21,7 @@ There is no global allocator state, so the library is compatible with any custom
 
 ## Io Model
 
-Random UUID generation uses Zig 0.16's `std.Io` model. You construct an `Io` instance once and pass it where secure randomness is required.
+Random UUID generation uses Zig 0.17.0's `std.Io` model. You construct an `Io` instance once and pass it where secure randomness is required.
 
 ```zig
 var threaded: std.Io.Threaded = .init(allocator, .{});
@@ -35,6 +35,9 @@ const v7 = try uuid.UUID.v7Now(io);
 - v4 and the random parts of v7 use `io.randomSecure` — cryptographically secure entropy.
 - If secure entropy is unavailable, an explicit error is returned. There is never a silent fallback to timestamps, process state, or weak PRNGs.
 - There is no hidden global I/O state.
+
+> [!IMPORTANT]
+> The core UUID type never performs I/O by itself. Only `v4`, `v7Now`, `Generator.v4`, `Generator.v7`, and `UUID.format` touch `std.Io`.
 
 ## Error Handling
 
