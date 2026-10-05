@@ -13,13 +13,13 @@ pub fn main() !void {
     std.debug.print("  Version: {}, Variant: {}\n", .{ id1.version(), id1.variant() });
 
     std.debug.print("\nAll zeros payload:\n", .{});
-    const custom2 = [_]u8{0} ** 16;
+    const custom2: [16]u8 = @splat(0);
     const id2 = uuid.UUID.v8(custom2);
     std.debug.print("  {s}\n", .{id2.encode(&buf)});
     std.debug.print("  Version: {}, Variant: {}\n", .{ id2.version(), id2.variant() });
 
     std.debug.print("\nAll ones payload:\n", .{});
-    const custom3 = [_]u8{0xFF} ** 16;
+    const custom3: [16]u8 = @splat(0xFF);
     const id3 = uuid.UUID.v8(custom3);
     std.debug.print("  {s}\n", .{id3.encode(&buf)});
     std.debug.print("  Version: {}, Variant: {}\n", .{ id3.version(), id3.variant() });

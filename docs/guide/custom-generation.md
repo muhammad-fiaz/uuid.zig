@@ -8,11 +8,11 @@ The timestamp, clock sequence, and node identifier are all explicit parameters. 
 
 ```zig
 const timestamp: u60 = 0x123456789ABCDEF; // 100ns since 1582-10-15
-const clock_seq: u14 = 0x1234;            // 14-bit clock sequence
+const clockSequence: u14 = 0x1234; // 14-bit clock sequence
 const node = [6]u8{ 0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF };
 
-const id1 = uuid.UUID.v1(timestamp, clock_seq, node);
-const id6 = uuid.UUID.v6(timestamp, clock_seq, node);
+const id1 = uuid.UUID.v1(timestamp, clockSequence, node);
+const id6 = uuid.UUID.v6(timestamp, clockSequence, node);
 ```
 
 ## Custom Timestamp and Randomness (v7)
@@ -20,11 +20,14 @@ const id6 = uuid.UUID.v6(timestamp, clock_seq, node);
 `UUID.v7` accepts an explicit millisecond timestamp and explicit random words. This makes tests fully deterministic without depending on the wall clock or the OS randomness source.
 
 ```zig
-const timestamp_ms: u48 = 0x123456789ABC;
-const rand_a: u12 = 0x456;
-const rand_b = [_]u8{ 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88, 0x99, 0xAA };
-const id = uuid.UUID.v7(timestamp_ms, rand_a, rand_b);
+const timestampMs: u48 = 0x123456789ABC;
+const randA: u12 = 0x456;
+const randB = [_]u8{ 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88, 0x99, 0xAA };
+const id = uuid.UUID.v7(timestampMs, randA, randB);
 ```
+
+> [!NOTE]
+> Only the first 8 bytes of `randB` are encoded; the final 2 bytes are accepted for compatibility and should be zero.
 
 For the current time with cryptographically secure randomness, use `UUID.v7Now(io)`.
 
@@ -43,12 +46,12 @@ const id = uuid.UUID.v8(custom);
 Namespace-based versions accept any `UUID` as the namespace, not just the predefined constants.
 
 ```zig
-const custom_namespace = uuid.UUID.fromBytes(.{
+const customNamespace = uuid.UUID.fromBytes(.{
     0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77,
     0x88, 0x99, 0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF,
 });
-const id3 = uuid.UUID.v3(custom_namespace, "name");
-const id5 = uuid.UUID.v5(custom_namespace, "name");
+const id3 = uuid.UUID.v3(customNamespace, "name");
+const id5 = uuid.UUID.v5(customNamespace, "name");
 ```
 
 ## Custom Randomness Source
@@ -63,6 +66,5 @@ bytes[8] = 0x80 | (bytes[8] & 0x3F);
 const id = uuid.UUID.fromBytes(bytes);
 ```
 
-::: warning
-Deterministic or user-controlled randomness is **not** cryptographically secure. Never label custom random sources as secure unless they genuinely are.
-:::
+> [!WARNING]
+> Deterministic or user-controlled randomness is **not** cryptographically secure. Never label custom random sources as secure unless they genuinely are.

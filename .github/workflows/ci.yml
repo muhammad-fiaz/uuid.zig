@@ -14,10 +14,13 @@ jobs:
 
       - uses: mlugg/setup-zig@v2
         with:
-          version: 0.16.0
+          version: 0.17.0
 
       - name: Run tests
         run: zig build test
+
+      - name: Check formatting
+        run: zig fmt --check src examples build.zig
 
       - name: Run all examples
         run: zig build run-all-examples

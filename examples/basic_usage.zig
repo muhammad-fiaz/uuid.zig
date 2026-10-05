@@ -25,11 +25,11 @@ pub fn main() !void {
     std.debug.print("Is nil: {}\n", .{id.isNil()});
 
     std.debug.print("\nNil UUID: ", .{});
-    var nil_buf: [36]u8 = undefined;
-    std.debug.print("{s}\n", .{uuid.UUID.nil.encode(&nil_buf)});
+    var nilBuf: [36]u8 = undefined;
+    std.debug.print("{s}\n", .{uuid.UUID.nil.encode(&nilBuf)});
 
     std.debug.print("\nMax UUID: ", .{});
-    var max_buf: [36]u8 = undefined;
-    std.debug.print("{s}\n", .{uuid.UUID.max.encode(&max_buf)});
+    var maxBuf: [36]u8 = undefined;
+    std.debug.print("{s}\n", .{uuid.UUID.max.encode(&maxBuf)});
     std.debug.print("Is max: {}\n", .{uuid.UUID.max.isMax()});
 }

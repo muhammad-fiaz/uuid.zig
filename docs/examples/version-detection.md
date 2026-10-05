@@ -1,6 +1,6 @@
 # Version Detection
 
-Detect the version and variant of any UUID.
+Detect the version and variant of every UUID flavour.
 
 ## Code
 
@@ -9,6 +9,8 @@ const std = @import("std");
 const uuid = @import("uuid");
 
 pub fn main() !void {
+    std.debug.print("=== UUID Version Detection ===\n\n", .{});
+
     var buf: [36]u8 = undefined;
 
     const v1 = uuid.UUID.v1(0x123456789ABCDEF, 0x1234, [_]u8{ 0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF });
@@ -27,7 +29,19 @@ pub fn main() !void {
     const v4 = try uuid.UUID.v4(io);
     std.debug.print("v4: {s} (version: {}, variant: {})\n", .{ v4.encode(&buf), v4.version(), v4.variant() });
 
-    std.debug.print("nil: {s} (version: {}, isNil: {})\n", .{ uuid.UUID.nil.encode(&buf), uuid.UUID.nil.version(), uuid.UUID.nil.isNil() });
+    const v5 = uuid.UUID.v5(uuid.Namespace.dns, "example.com");
+    std.debug.print("v5: {s} (version: {}, variant: {})\n", .{ v5.encode(&buf), v5.version(), v5.variant() });
+
+    const v6 = uuid.UUID.v6(0x123456789ABCDEF, 0x1234, [_]u8{ 0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF });
+    std.debug.print("v6: {s} (version: {}, variant: {})\n", .{ v6.encode(&buf), v6.version(), v6.variant() });
+
+    const v7 = uuid.UUID.v7(0x123456789ABC, 0x456, [_]u8{ 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88, 0x99, 0xAA });
+    std.debug.print("v7: {s} (version: {}, variant: {})\n", .{ v7.encode(&buf), v7.version(), v7.variant() });
+
+    const v8 = uuid.UUID.v8([_]u8{ 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F, 0x10 });
+    std.debug.print("v8: {s} (version: {}, variant: {})\n", .{ v8.encode(&buf), v8.version(), v8.variant() });
+
+    std.debug.print("\nnil: {s} (version: {}, isNil: {})\n", .{ uuid.UUID.nil.encode(&buf), uuid.UUID.nil.version(), uuid.UUID.nil.isNil() });
 }
 ```
 
@@ -37,7 +51,21 @@ pub fn main() !void {
 zig build run-version-detection
 ```
 
-## Notes
+## Output
 
-- `version()` returns a `Version` enum (`v1`..`v8`, `nil`, `unknown`).
-- `variant()` returns a `Variant` enum (`ncs`, `rfc`, `microsoft`, `future`).
+```text
+=== UUID Version Detection ===
+
+v1: 89abcdef-4567-1123-9234-aabbccddeeff (version: .v1, variant: .rfc)
+v3: 9073926b-929f-31c2-abc9-fad77ae3e8eb (version: .v3, variant: .rfc)
+v4: 4f762984-7c9f-42e4-81d9-2c84adbf1c13 (version: .v4, variant: .rfc)
+v5: cfbff0d1-9375-5685-968c-48ce8b15ae17 (version: .v5, variant: .rfc)
+v6: 12345678-9abc-6def-9234-aabbccddeeff (version: .v6, variant: .rfc)
+v7: 12345678-9abc-7456-9122-334455667788 (version: .v7, variant: .rfc)
+v8: 01020304-0506-8708-890a-0b0c0d0e0f10 (version: .v8, variant: .rfc)
+
+nil: 00000000-0000-0000-0000-000000000000 (version: .nil, isNil: true)
+```
+
+> [!NOTE]
+> Only the `v4` line is random; every other line is deterministic.

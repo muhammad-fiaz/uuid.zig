@@ -12,7 +12,7 @@ UUID formatting functions.
 | `encodeBraced` | `(self: UUID, buffer: []u8) []u8` | Wrapped in braces |
 | `encodeUrn` | `(self: UUID, buffer: []u8) []u8` | URN prefix |
 | `format` | `(self: UUID, writer: *Io.Writer) Io.Writer.Error!void` | Write to writer |
-| `toString` | `(self: UUID, allocator: Allocator) Allocator.Error![]u8` | Allocated string |
+| `toStringAlloc` | `(self: UUID, allocator: Allocator) Allocator.Error![]u8` | Allocated string (caller owns result) |
 
 ## Buffer Sizes
 
@@ -23,6 +23,9 @@ UUID formatting functions.
 | Compact | 32 bytes |
 | Braced | 38 bytes |
 | URN | 45 bytes |
+
+> [!TIP]
+> Prefer the fixed-buffer `encode*` family in hot paths. Use `toStringAlloc` only when an owned slice is required, and free it with the same allocator.
 
 ## Validation
 

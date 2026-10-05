@@ -30,13 +30,13 @@ pub const UUID = struct {
 
 | Method | Signature | Description |
 |--------|-----------|-------------|
-| `v1` | `(timestamp: u60, clock_seq: u14, node_id: [6]u8) UUID` | Time-based |
-| `v2` | `(domain: u8, local_id: u32, node_id: [6]u8) UUID` | DCE Security (POSIX UID/GID) |
+| `v1` | `(timestamp: u60, clockSequence: u14, nodeId: [6]u8) UUID` | Time-based |
+| `v2` | `(domain: u8, localId: u32, nodeId: [6]u8) UUID` | DCE Security (POSIX UID/GID) |
 | `v3` | `(namespace: UUID, name: []const u8) UUID` | MD5 namespace |
 | `v4` | `(io: Io) Io.RandomSecureError!UUID` | Random |
 | `v5` | `(namespace: UUID, name: []const u8) UUID` | SHA-1 namespace |
-| `v6` | `(timestamp: u60, clock_seq: u14, node_id: [6]u8) UUID` | Reordered time |
-| `v7` | `(timestamp_ms: u48, rand_a: u12, rand_b: [10]u8) UUID` | Epoch time |
+| `v6` | `(timestamp: u60, clockSequence: u14, nodeId: [6]u8) UUID` | Reordered time |
+| `v7` | `(timestampMs: u48, randA: u12, randB: [10]u8) UUID` | Epoch time |
 | `v7Now` | `(io: Io) Io.RandomSecureError!UUID` | v7 with current time |
 | `v8` | `(custom: [16]u8) UUID` | Application-specific |
 
@@ -50,7 +50,7 @@ pub const UUID = struct {
 | `encodeBraced` | `(self, buffer: []u8) []u8` | Braced format |
 | `encodeUrn` | `(self, buffer: []u8) []u8` | URN format |
 | `format` | `(self, writer: *Io.Writer) Io.Writer.Error!void` | Write to writer |
-| `toString` | `(self, allocator: Allocator) Allocator.Error![]u8` | Allocated string |
+| `toStringAlloc` | `(self, allocator: Allocator) Allocator.Error![]u8` | Allocated string (caller owns result) |
 
 ### Inspection
 
@@ -98,7 +98,7 @@ pub const UUID = struct {
 
 | Method | Signature | Description |
 |--------|-----------|-------------|
-| `generateFromHash` | `(ver: Version, namespace: *const [16]u8, name: []const u8) UUID` | Hash-based generation |
+| `generateFromHash` | `(hashVersion: Version, namespaceBytes: *const [16]u8, name: []const u8) UUID` | Hash-based generation |
 
 ## Module Functions
 

@@ -10,7 +10,11 @@ UUID parsing functions.
 | `parseCompact` | `(input: []const u8) ParseError!UUID` | Parse compact format |
 | `parseBraced` | `(input: []const u8) ParseError!UUID` | Parse braced format |
 | `parseUrn` | `(input: []const u8) ParseError!UUID` | Parse URN format |
-| `parseAll` | `(inputs: []const []const u8, allocator: Allocator) (Allocator.Error \|\| ParseError)![]UUID` | Parse multiple UUIDs |
+| `parseAll` | `(inputs: []const []const u8, allocator: Allocator) (Allocator.Error \|\| ParseError)![]UUID` | Parse multiple UUIDs (caller owns result) |
+| `parseMultiDelim` | `(input: []const u8, delimiter: u8, allocator: Allocator) (Allocator.Error \|\| ParseError)![]UUID` | Parse delimited UUIDs (caller owns result) |
+
+> [!NOTE]
+> `parseAll` and `parseMultiDelim` return caller-owned slices. Free them with the same allocator when done.
 
 ## Formats
 

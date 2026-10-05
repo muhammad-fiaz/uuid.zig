@@ -9,10 +9,10 @@ pub fn main() !void {
 
     // v2 - DCE Security (POSIX UID/GID)
     std.debug.print("--- v2 (DCE Security) ---\n", .{});
-    const posix_uid = uuid.UUID.v2(1, 1000, .{ 0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF });
+    const posixUid = uuid.UUID.v2(1, 1000, .{ 0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF });
     var buf: [36]u8 = undefined;
-    std.debug.print("POSIX UID (domain=1, id=1000): {s}\n", .{posix_uid.encode(&buf)});
-    std.debug.print("Version: {}, Variant: {}\n\n", .{ posix_uid.version(), posix_uid.variant() });
+    std.debug.print("POSIX UID (domain=1, id=1000): {s}\n", .{posixUid.encode(&buf)});
+    std.debug.print("Version: {}, Variant: {}\n\n", .{ posixUid.version(), posixUid.variant() });
 
     // Timestamp extraction
     std.debug.print("--- Timestamp Extraction ---\n", .{});
@@ -44,22 +44,22 @@ pub fn main() !void {
 
     // Validation
     std.debug.print("\n--- UUID Validation ---\n", .{});
-    const valid_inputs = [_][]const u8{
+    const validInputs = [_][]const u8{
         "550e8400-e29b-41d4-a716-446655440000",
         "550e8400e29b41d4a716446655440000",
         "{550e8400-e29b-41d4-a716-446655440000}",
         "urn:uuid:550e8400-e29b-41d4-a716-446655440000",
     };
-    for (valid_inputs) |input| {
+    for (validInputs) |input| {
         std.debug.print("  \"{s}\" -> {}\n", .{ input, uuid.isValid(input) });
     }
 
-    const invalid_inputs = [_][]const u8{
+    const invalidInputs = [_][]const u8{
         "not-a-uuid",
         "550e8400-e29b-41d4-a716",
         "550e8400-e29b-41d4-a716-446655440000-extra",
     };
-    for (invalid_inputs) |input| {
+    for (invalidInputs) |input| {
         std.debug.print("  \"{s}\" -> {}\n", .{ input, uuid.isValid(input) });
     }
 

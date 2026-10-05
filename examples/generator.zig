@@ -40,15 +40,15 @@ pub fn main() !void {
     std.debug.print("v7: {s}\n", .{id7.encode(&buf)});
 
     // v7 with custom timestamp
-    const id7_custom = gen.v7WithTimestamp(0x017F22E279B0, 0xCC3, .{ 0x18, 0xC4, 0xDC, 0x0C, 0x0C, 0x07, 0x39, 0x8F, 0x00, 0x00 });
-    std.debug.print("v7 (custom): {s}\n", .{id7_custom.encode(&buf)});
+    const id7Custom = gen.v7WithTimestamp(0x017F22E279B0, 0xCC3, .{ 0x18, 0xC4, 0xDC, 0x0C, 0x0C, 0x07, 0x39, 0x8F, 0x00, 0x00 });
+    std.debug.print("v7 (custom): {s}\n", .{id7Custom.encode(&buf)});
 
     // v8 - Application-specific
     const id8 = gen.v8(.{ 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F, 0x10 });
     std.debug.print("v8: {s}\n", .{id8.encode(&buf)});
 
-    // toString - Allocated string
-    const str = try gen.toString(id4);
+    // toStringAlloc - Allocated string (caller owns memory)
+    const str = try gen.toStringAlloc(id4);
     defer allocator.free(str);
     std.debug.print("\nAllocated string: {s}\n", .{str});
 }

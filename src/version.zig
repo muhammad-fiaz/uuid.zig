@@ -1,5 +1,11 @@
+//! UUID version identifiers (RFC 4122 / RFC 9562).
+//!
+//! `Version` is a lightweight value type. The nil UUID reports `.nil`;
+//! any nibble without an assigned meaning reports `.unknown`.
+
 const std = @import("std");
 
+/// UUID version discriminant.
 pub const Version = enum {
     v1,
     v2,
@@ -12,8 +18,12 @@ pub const Version = enum {
     nil,
     unknown,
 
-    pub fn toInt(v: Version) u8 {
-        return switch (v) {
+    /// Returns the 4-bit version number stored in octet 6.
+    ///
+    /// Both `.nil` and `.unknown` map to `0` because neither has an
+    /// assigned version nibble.
+    pub fn toInt(self: Version) u8 {
+        return switch (self) {
             .v1 => 1,
             .v2 => 2,
             .v3 => 3,
@@ -27,6 +37,11 @@ pub const Version = enum {
         };
     }
 
+    /// Maps a 4-bit nibble to its version discriminant.
+    ///
+    /// Nibble `0` maps to `.nil`; nibbles above `8` map to `.unknown`.
+    /// Callers that need to distinguish nil from unknown should inspect
+    /// the UUID value itself via `UUID.isNil`.
     pub fn fromInt(value: u8) Version {
         return switch (value) {
             0 => .nil,
@@ -49,6 +64,9 @@ test "version toInt" {
     try testing.expectEqual(@as(u8, 4), Version.v4.toInt());
     try testing.expectEqual(@as(u8, 7), Version.v7.toInt());
     try testing.expectEqual(@as(u8, 0), Version.nil.toInt());
+    try testing.expectEqual(@as(u8, 0), Version.unknown.toInt());
+    try testing.expectEqual(@as(u8, 2), Version.v2.toInt());
+    try testing.expectEqual(@as(u8, 8), Version.v8.toInt());
 }
 
 test "version fromInt" {
@@ -58,4 +76,12 @@ test "version fromInt" {
     try testing.expectEqual(Version.v7, Version.fromInt(7));
     try testing.expectEqual(Version.nil, Version.fromInt(0));
     try testing.expectEqual(Version.unknown, Version.fromInt(99));
+    try testing.expectEqual(Version.unknown, Version.fromInt(9));
+}
+
+test "version round-trip" {
+    const testing = std.testing;
+    for ([_]Version{ .v1, .v2, .v3, .v4, .v5, .v6, .v7, .v8 }) |ver| {
+        try testing.expectEqual(ver, Version.fromInt(ver.toInt()));
+    }
 }

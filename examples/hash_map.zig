@@ -15,18 +15,18 @@ pub fn main() !void {
     var map = std.AutoHashMap(uuid.UUID, []const u8).init(allocator);
     defer map.deinit();
 
-    const user_id = try uuid.UUID.v4(io);
-    const session_id = try uuid.UUID.v4(io);
+    const userId = try uuid.UUID.v4(io);
+    const sessionId = try uuid.UUID.v4(io);
 
-    try map.put(user_id, "user@example.com");
-    try map.put(session_id, "session_abc123");
+    try map.put(userId, "user@example.com");
+    try map.put(sessionId, "session_abc123");
 
     var buf: [36]u8 = undefined;
-    std.debug.print("User ID: {s}\n", .{user_id.encode(&buf)});
-    std.debug.print("Session ID: {s}\n", .{session_id.encode(&buf)});
+    std.debug.print("User ID: {s}\n", .{userId.encode(&buf)});
+    std.debug.print("Session ID: {s}\n", .{sessionId.encode(&buf)});
 
-    std.debug.print("\nLooking up user_id...\n", .{});
-    if (map.get(user_id)) |email| {
+    std.debug.print("\nLooking up userId...\n", .{});
+    if (map.get(userId)) |email| {
         std.debug.print("  Found: {s}\n", .{email});
     }
 

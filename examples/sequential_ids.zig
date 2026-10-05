@@ -21,7 +21,7 @@ pub fn main() !void {
     };
 
     // Simulated user data
-    const user_data = [_]struct { name: []const u8, email: []const u8 }{
+    const userData = [_]struct { name: []const u8, email: []const u8 }{
         .{ .name = "Alice Johnson", .email = "alice@example.com" },
         .{ .name = "Bob Smith", .email = "bob@example.com" },
         .{ .name = "Charlie Brown", .email = "charlie@example.com" },
@@ -30,59 +30,59 @@ pub fn main() !void {
     };
 
     // Register users with sequential v7 UUIDs
-    var users: [user_data.len]User = undefined;
+    var users: [userData.len]User = undefined;
 
     std.debug.print("Registering users with v7 UUIDs (time-ordered):\n\n", .{});
 
-    for (user_data, 0..) |data, idx| {
+    for (userData, 0..) |data, idx| {
         // v7 UUIDs are time-ordered, making them ideal for sequential IDs
         // They sort chronologically even without a database auto-increment
-        const user_id = try uuid.UUID.v7Now(io);
+        const userId = try uuid.UUID.v7Now(io);
 
         users[idx] = User{
-            .id = user_id,
+            .id = userId,
             .name = data.name,
             .email = data.email,
         };
 
-        var id_buf: [36]u8 = undefined;
+        var idBuf: [36]u8 = undefined;
         std.debug.print("  Registered: {s} <{s}>\n", .{ data.name, data.email });
-        std.debug.print("    ID: {s}\n\n", .{user_id.encode(&id_buf)});
+        std.debug.print("    ID: {s}\n\n", .{userId.encode(&idBuf)});
     }
 
     // Simulate database storage - users are stored in order
     std.debug.print("--- Stored Users (in registration order) ---\n\n", .{});
 
     for (users, 0..) |user, idx| {
-        var id_buf: [36]u8 = undefined;
-        std.debug.print("  {d}. {s} - {s}\n", .{ idx + 1, user.name, user.id.encode(&id_buf) });
+        var idBuf: [36]u8 = undefined;
+        std.debug.print("  {d}. {s} - {s}\n", .{ idx + 1, user.name, user.id.encode(&idBuf) });
     }
 
     // Demonstrate that v7 UUIDs maintain order
     std.debug.print("\n--- Sequential Order Verification ---\n\n", .{});
 
-    var all_ordered = true;
+    var allOrdered = true;
     for (users[1..], 0..) |user, idx| {
         const prev = users[idx];
         if (user.id.compare(prev.id) != .gt) {
-            all_ordered = false;
+            allOrdered = false;
             break;
         }
     }
 
-    std.debug.print("  All UUIDs in sequential order: {}\n", .{all_ordered});
+    std.debug.print("  All UUIDs in sequential order: {}\n", .{allOrdered});
 
     // Simulate looking up a user by ID
     std.debug.print("\n--- User Lookup Simulation ---\n\n", .{});
 
-    const target_user = users[2]; // Look up 3rd user
-    var id_buf: [36]u8 = undefined;
-    std.debug.print("  Looking up user with ID: {s}\n", .{target_user.id.encode(&id_buf)});
+    const targetUser = users[2]; // Look up 3rd user
+    var idBuf: [36]u8 = undefined;
+    std.debug.print("  Looking up user with ID: {s}\n", .{targetUser.id.encode(&idBuf)});
 
     // In production, this would be a database query
     // SELECT * FROM users WHERE id = ?
     for (users) |user| {
-        if (user.id.eql(target_user.id)) {
+        if (user.id.eql(targetUser.id)) {
             std.debug.print("  Found: {s} <{s}>\n", .{ user.name, user.email });
             break;
         }
@@ -122,17 +122,17 @@ pub fn main() !void {
     // Alternative: Using v1 UUIDs with custom timestamp for strict sequencing
     std.debug.print("\n--- Alternative: v1 UUID with Custom Timestamp ---\n\n", .{});
 
-    const base_timestamp: u60 = 0x1EC9414C232AB00; // Example timestamp
-    const clock_seq: u14 = 0;
+    const baseTimestamp: u60 = 0x1EC9414C232AB00; // Example timestamp
+    const clockSequence: u14 = 0;
     const node = [6]u8{ 0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF };
 
     for (0..3) |i| {
         // Increment timestamp for each ID
-        const timestamp = base_timestamp + @as(u60, @intCast(i));
-        const sequential_id = uuid.UUID.v1(timestamp, clock_seq, node);
+        const timestamp = baseTimestamp + @as(u60, @intCast(i));
+        const sequentialId = uuid.UUID.v1(timestamp, clockSequence, node);
 
         var buf: [36]u8 = undefined;
-        std.debug.print("  Sequential v1 UUID {d}: {s}\n", .{ i + 1, sequential_id.encode(&buf) });
+        std.debug.print("  Sequential v1 UUID {d}: {s}\n", .{ i + 1, sequentialId.encode(&buf) });
     }
 
     std.debug.print("\n  Note: v7 is preferred over v1 for new applications\n", .{});

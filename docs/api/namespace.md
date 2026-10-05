@@ -14,6 +14,6 @@ RFC 4122 predefined namespace UUIDs for v3/v5 generation.
 ## Usage
 
 ```zig
-const id_dns = uuid.UUID.v3(uuid.Namespace.dns, "www.example.com");
-const id_url = uuid.UUID.v5(uuid.Namespace.url, "www.example.com");
+const idDns = uuid.UUID.v3(uuid.Namespace.dns, "www.example.com");
+const idUrl = uuid.UUID.v5(uuid.Namespace.url, "www.example.com");
 ```

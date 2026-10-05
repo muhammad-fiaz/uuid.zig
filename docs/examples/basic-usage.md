@@ -17,24 +17,28 @@ pub fn main() !void {
     defer threaded.deinit();
     const io = threaded.io();
 
-    // Generate v4 UUID
+    std.debug.print("=== Basic UUID Usage ===\n\n", .{});
+
     const id = try uuid.UUID.v4(io);
     var buf: [36]u8 = undefined;
     std.debug.print("Generated UUID: {s}\n", .{id.encode(&buf)});
 
-    // Parse UUID
     const parsed = try uuid.parse("550e8400-e29b-41d4-a716-446655440000");
     var buf2: [36]u8 = undefined;
     std.debug.print("Parsed UUID:    {s}\n", .{parsed.encode(&buf2)});
 
-    // Inspect
-    std.debug.print("Version: {}\n", .{id.version()});
+    std.debug.print("\nVersion: {}\n", .{id.version()});
     std.debug.print("Variant: {}\n", .{id.variant()});
     std.debug.print("Is nil: {}\n", .{id.isNil()});
 
-    // Nil UUID
-    var nil_buf: [36]u8 = undefined;
-    std.debug.print("Nil UUID: {s}\n", .{uuid.UUID.nil.encode(&nil_buf)});
+    std.debug.print("\nNil UUID: ", .{});
+    var nilBuf: [36]u8 = undefined;
+    std.debug.print("{s}\n", .{uuid.UUID.nil.encode(&nilBuf)});
+
+    std.debug.print("\nMax UUID: ", .{});
+    var maxBuf: [36]u8 = undefined;
+    std.debug.print("{s}\n", .{uuid.UUID.max.encode(&maxBuf)});
+    std.debug.print("Is max: {}\n", .{uuid.UUID.max.isMax()});
 }
 ```
 
@@ -43,3 +47,24 @@ pub fn main() !void {
 ```bash
 zig build run-basic-usage
 ```
+
+## Output
+
+```text
+=== Basic UUID Usage ===
+
+Generated UUID: ac46f626-d34f-40c7-9dfd-b21cc2d7abe8
+Parsed UUID:    550e8400-e29b-41d4-a716-446655440000
+
+Version: .v4
+Variant: .rfc
+Is nil: false
+
+Nil UUID: 00000000-0000-0000-0000-000000000000
+
+Max UUID: ffffffff-ffff-ffff-ffff-ffffffffffff
+Is max: true
+```
+
+> [!NOTE]
+> The generated v4 UUID differs on every run. All other lines are deterministic.

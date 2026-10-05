@@ -21,7 +21,12 @@ zig build run-hash-map
 zig build run-namespaces
 zig build run-version-detection
 zig build run-batch-generation
+zig build run-sequential-ids
+zig build run-uuid-internals
 ```
+
+> [!TIP]
+> Run everything at once with `zig build run-all-examples`.
 
 ## Available Examples
 
@@ -43,3 +48,5 @@ zig build run-batch-generation
 | [Namespaces](/examples/namespaces) | RFC 4122 namespace constants |
 | [Version Detection](/examples/version-detection) | Detect UUID version and variant |
 | [Batch Generation](/examples/batch-generation) | Batch generate v4 and v7 UUIDs |
+| [Sequential IDs](/examples/sequential-ids) | Sequential UUIDs for user registration and database storage |
+| [UUID Internals](/examples/uuid-internals) | Timestamp extraction, sorting, validation, batch parsing |

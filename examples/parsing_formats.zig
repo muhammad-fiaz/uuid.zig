@@ -20,15 +20,15 @@ pub fn main() !void {
     std.debug.print("\nOutput formats:\n", .{});
     std.debug.print("  Canonical:  {s}\n", .{canonical.encode(&buf)});
 
-    var upper_buf: [36]u8 = undefined;
-    std.debug.print("  Uppercase:  {s}\n", .{canonical.encodeUppercase(&upper_buf)});
+    var upperBuf: [36]u8 = undefined;
+    std.debug.print("  Uppercase:  {s}\n", .{canonical.encodeUppercase(&upperBuf)});
 
-    var compact_buf: [32]u8 = undefined;
-    std.debug.print("  Compact:    {s}\n", .{canonical.encodeCompact(&compact_buf)});
+    var compactBuf: [32]u8 = undefined;
+    std.debug.print("  Compact:    {s}\n", .{canonical.encodeCompact(&compactBuf)});
 
-    var braced_buf: [38]u8 = undefined;
-    std.debug.print("  Braced:     {s}\n", .{canonical.encodeBraced(&braced_buf)});
+    var bracedBuf: [38]u8 = undefined;
+    std.debug.print("  Braced:     {s}\n", .{canonical.encodeBraced(&bracedBuf)});
 
-    var urn_buf: [45]u8 = undefined;
-    std.debug.print("  URN:        {s}\n", .{canonical.encodeUrn(&urn_buf)});
+    var urnBuf: [45]u8 = undefined;
+    std.debug.print("  URN:        {s}\n", .{canonical.encodeUrn(&urnBuf)});
 }

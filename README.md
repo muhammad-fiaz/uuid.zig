@@ -6,7 +6,7 @@
 # UUID.zig
 
 <a href="https://muhammad-fiaz.github.io/uuid.zig/"><img src="https://img.shields.io/badge/docs-muhammad--fiaz.github.io-blue" alt="Documentation"></a>
-<a href="https://ziglang.org/"><img src="https://img.shields.io/badge/Zig-0.16.0-orange.svg?logo=zig" alt="Zig Version"></a>
+<a href="https://ziglang.org/"><img src="https://img.shields.io/badge/Zig-0.17.0-orange.svg?logo=zig" alt="Zig Version"></a>
 <a href="https://github.com/muhammad-fiaz/uuid.zig"><img src="https://img.shields.io/github/stars/muhammad-fiaz/uuid.zig" alt="GitHub stars"></a>
 <a href="https://github.com/muhammad-fiaz/uuid.zig/issues"><img src="https://img.shields.io/github/issues/muhammad-fiaz/uuid.zig" alt="GitHub issues"></a>
 <a href="https://github.com/muhammad-fiaz/uuid.zig/pulls"><img src="https://img.shields.io/github/issues-pr/muhammad-fiaz/uuid.zig" alt="GitHub pull requests"></a>
@@ -32,6 +32,9 @@
 
 > [!TIP]
 > If you build with uuid.zig, make sure to give it a star.
+
+> [!NOTE]
+> This release (`0.0.2`) targets **Zig 0.17.0**. If you are still on Zig 0.16.0, please use `uuid.zig` version `0.0.1`.
 
 ---
 
@@ -62,7 +65,7 @@
 | **Sorting** | Sort UUID slices in-place for database ordering. |
 | **Validation** | Check UUID string format without parsing. |
 | **Batch Operations** | Parse and validate multiple UUIDs at once. |
-| **Modular Codebase** | Separated concerns: version, variant, core, parse, generator, hex, namespace, errors. |
+| **Modular Codebase** | Flat `src/` layout: `uuid`, `core`, `version`, `variant`, `parse`, `generator`, `hex`, `namespace`, `errors`. |
 
 </details>
 
@@ -77,8 +80,11 @@ Before using `uuid.zig`, ensure you have the following:
 
 | Requirement | Version | Notes |
 |-------------|---------|-------|
-| **Zig** | **0.16.0** (recommended) | Download from [ziglang.org](https://ziglang.org/download/) |
+| **Zig** | **0.17.0** (recommended) | Download from [ziglang.org](https://ziglang.org/download/) |
 | **Operating System** | Windows 10+, Linux, macOS | Cross-platform support |
+
+> [!NOTE]
+> For Zig 0.16.0 support, use `uuid.zig` version `0.0.1`.
 
 ---
 
@@ -116,6 +122,12 @@ zig build -Dtarget=aarch64-macos
 ### Method 1: Zig Fetch (Recommended)
 
 ```bash
+zig fetch --save https://github.com/muhammad-fiaz/uuid.zig/archive/refs/tags/0.0.2.tar.gz
+```
+
+For Zig 0.16.0, use:
+
+```bash
 zig fetch --save https://github.com/muhammad-fiaz/uuid.zig/archive/refs/tags/0.0.1.tar.gz
 ```
 
@@ -128,6 +140,17 @@ zig fetch --save git+https://github.com/muhammad-fiaz/uuid.zig.git
 ### Method 3: Manual `build.zig.zon` Configuration
 
 Add the dependency to your `build.zig.zon` file.
+
+```zig
+.dependencies = .{
+    .uuid = .{
+        .url = "https://github.com/muhammad-fiaz/uuid.zig/archive/refs/tags/0.0.2.tar.gz",
+        .hash = "...", // Run `zig fetch --save <url>` to generate the hash.
+    },
+},
+```
+
+For Zig 0.16.0, use:
 
 ```zig
 .dependencies = .{
@@ -218,19 +241,19 @@ const id = uuid.UUID.v3(uuid.Namespace.dns, "example.com");
 const id = uuid.UUID.v5(uuid.Namespace.dns, "example.com");
 
 // v1 (time-based)
-const id = uuid.UUID.v1(timestamp, clock_seq, node);
+const id = uuid.UUID.v1(timestamp, clockSequence, node);
 
 // v2 (DCE Security - POSIX UID/GID)
-const id = uuid.UUID.v2(domain, local_id, node);
+const id = uuid.UUID.v2(domain, localId, node);
 
 // v6 (reordered time-based)
-const id = uuid.UUID.v6(timestamp, clock_seq, node);
+const id = uuid.UUID.v6(timestamp, clockSequence, node);
 
 // v7 (custom timestamp)
-const id = uuid.UUID.v7(timestamp_ms, rand_a, rand_b);
+const id = uuid.UUID.v7(timestampMs, randA, randB);
 
 // v8 (application-specific)
-const id = uuid.UUID.v8(custom_bytes);
+const id = uuid.UUID.v8(customBytes);
 ```
 
 ### Parse
@@ -241,9 +264,13 @@ const id = try uuid.parseCompact("550e8400e29b41d4a716446655440000");
 const id = try uuid.parseBraced("{550e8400-e29b-41d4-a716-446655440000}");
 const id = try uuid.parseUrn("urn:uuid:550e8400-e29b-41d4-a716-446655440000");
 
-// Batch parse
+// Batch parse (caller owns the returned slice)
 const ids = try uuid.parseAll(&inputs, allocator);
 defer allocator.free(ids);
+
+// Delimited parse (caller owns the returned slice)
+const delimited = try uuid.parseMultiDelim("550e8400-e29b-41d4-a716-446655440000,6ba7b810-9dad-11d1-80b4-00c04fd430c8", ',', allocator);
+defer allocator.free(delimited);
 ```
 
 ### Validate
@@ -258,26 +285,26 @@ if (uuid.isValid("550e8400-e29b-41d4-a716-446655440000")) {
 
 ```zig
 var buf: [36]u8 = undefined;
-const canonical = id.encode(&buf);          // xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+const canonical = id.encode(&buf); // xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
 const uppercase = id.encodeUppercase(&buf); // XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX
 
-var compact_buf: [32]u8 = undefined;
-const compact = id.encodeCompact(&compact_buf); // xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+var compactBuf: [32]u8 = undefined;
+const compact = id.encodeCompact(&compactBuf); // xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 
-var braced_buf: [38]u8 = undefined;
-const braced = id.encodeBraced(&braced_buf); // {xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx}
+var bracedBuf: [38]u8 = undefined;
+const braced = id.encodeBraced(&bracedBuf); // {xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx}
 
-var urn_buf: [45]u8 = undefined;
-const urn = id.encodeUrn(&urn_buf); // urn:uuid:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
+var urnBuf: [45]u8 = undefined;
+const urn = id.encodeUrn(&urnBuf); // urn:uuid:xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx
 ```
 
 ### Inspect
 
 ```zig
-const version = id.version();   // .v4
-const variant = id.variant();   // .rfc
-const is_nil = id.isNil();      // false
-const is_max = id.isMax();      // false
+const version = id.version(); // .v4
+const variant = id.variant(); // .rfc
+const isNil = id.isNil(); // false
+const isMax = id.isMax(); // false
 ```
 
 ### Extract Components
@@ -286,11 +313,11 @@ const is_max = id.isMax();      // false
 // From v1/v6 UUIDs
 const timestamp = id.timestampV1(); // u60
 const timestamp = id.timestampV6(); // u60
-const clock = id.clockSeq();        // u14
-const node = id.node();             // [6]u8
+const clock = id.clockSeq(); // u14
+const node = id.node(); // [6]u8
 
 // From v7 UUIDs
-const timestamp_ms = id.timestampV7(); // u48
+const timestampMs = id.timestampV7(); // u48
 ```
 
 ### Sort
@@ -309,16 +336,16 @@ const order = id1.compare(id2); // .lt, .eq, .gt
 ### Convert
 
 ```zig
-const bytes = id.toBytes();      // [16]u8
+const bytes = id.toBytes(); // [16]u8
 const id = uuid.UUID.fromBytes(bytes);
-const int = id.toU128();         // u128
+const int = id.toU128(); // u128
 const id = uuid.UUID.fromU128(int);
 ```
 
 ### Hash
 
 ```zig
-const hash_val = id.hash(); // u64
+const hashVal = id.hash(); // u64
 ```
 
 ## Namespace Constants
@@ -332,13 +359,19 @@ const x500 = uuid.Namespace.x500;
 
 ## Allocator Model
 
-Core UUID operations are allocation-free. The `Generator` type holds an allocator for operations that allocate:
+Core UUID operations are allocation-free. The `Generator` type borrows an allocator only for operations that allocate:
 
 ```zig
 const gen = uuid.Generator.init(allocator, io);
-const str = try gen.toString(id);
+const str = try gen.toStringAlloc(id);
 defer allocator.free(str);
 ```
+
+> [!NOTE]
+> `UUID.toStringAlloc`, `parseAll`, `parseMultiDelim`, and `Generator.toStringAlloc` return caller-owned memory. Free the returned slice with the same allocator when done.
+
+> [!IMPORTANT]
+> `UUID` values are lightweight copies. Sharing them across threads is safe. `Generator` holds no mutable state; sharing one instance is safe when its borrowed allocator and `std.Io` permit concurrent use.
 
 ## Examples
 
@@ -395,10 +428,10 @@ zig build run-uuid-internals
 zig build test
 
 # Format source files
-zig build fmt
+zig fmt src examples build.zig
 
 # Check formatting
-zig build fmt-check
+zig fmt --check src examples build.zig
 ```
 
 ## Contributing
