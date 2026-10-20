@@ -43,7 +43,7 @@ jobs:
 
       - name: Install dependencies
         working-directory: ./docs
-        run: bun install
+        run: bun install --frozen-lockfile
 
       - name: Build with VitePress
         working-directory: ./docs
