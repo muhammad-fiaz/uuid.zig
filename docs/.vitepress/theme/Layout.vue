@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import DefaultTheme from "vitepress/theme";
 import { computed } from "vue";
-import { useData } from "vitepress";
+import { useData, withBase } from "vitepress";
 
 const { page, site } = useData();
 
@@ -37,10 +37,10 @@ const homeName = computed(() => site.value.title || "Home");
   <DefaultTheme.Layout>
     <template #doc-before>
       <nav v-if="crumbs.length > 0" class="doc-breadcrumbs" aria-label="Breadcrumb">
-        <a href="/">{{ homeName }}</a>
+        <a :href="withBase('/')">{{ homeName }}</a>
         <span class="sep">/</span>
         <template v-for="(crumb, i) in crumbs" :key="i">
-          <a v-if="crumb.link" :href="crumb.link">{{ crumb.name }}</a>
+          <a v-if="crumb.link" :href="withBase(crumb.link)">{{ crumb.name }}</a>
           <span v-else aria-current="page">{{ crumb.name }}</span>
           <span v-if="i < crumbs.length - 1" class="sep">/</span>
         </template>

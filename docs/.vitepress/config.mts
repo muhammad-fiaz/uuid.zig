@@ -20,7 +20,7 @@ export default defineConfig({
   cleanUrls: false,
 
   sitemap: {
-    hostname: SITE_URL,
+    hostname: `${SITE_URL}/`,
   },
 
   vite: {
@@ -57,8 +57,6 @@ export default defineConfig({
     ["meta", { name: "twitter:image:alt", content: "uuid.zig - High Performance Zig UUID Library" }],
     ["meta", { name: "twitter:site", content: "@muhammadfiaz_" }],
     ["meta", { name: "twitter:creator", content: "@muhammadfiaz_" }],
-
-    ["link", { rel: "canonical", href: SITE_URL }],
 
     ["link", { rel: "icon", href: "/uuid.zig/favicon.ico" }],
     ["link", { rel: "icon", type: "image/png", sizes: "16x16", href: "/uuid.zig/favicon-16x16.png" }],
@@ -114,11 +112,14 @@ gtag('config', '${GA_ID}');`,
   transformPageData(pageData: any) {
     const pageTitle = pageData.title || SITE_NAME;
     const pageDescription = pageData.description || SITE_DESCRIPTION;
+    const isIndex = /(^|\/)index\.md$/.test(pageData.relativePath);
     const normalizedPath = pageData.relativePath
       .replace(/\.md$/, "")
       .replace(/(^|\/)index$/, "$1")
       .replace(/\/$/, "");
-    const canonicalUrl = normalizedPath.length > 0 ? `${SITE_URL}/${normalizedPath}` : SITE_URL;
+    const canonicalUrl = normalizedPath.length === 0
+      ? `${SITE_URL}/`
+      : `${SITE_URL}/${normalizedPath}${isIndex ? "/" : ".html"}`;
 
     pageData.frontmatter.head ??= [];
     pageData.frontmatter.head.push(
