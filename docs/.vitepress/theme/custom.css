@@ -36,26 +36,3 @@
   font-weight: 600;
 }
 
-.doc-breadcrumbs {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.35rem;
-  font-size: 0.82rem;
-  color: var(--vp-c-text-2);
-  margin-bottom: 0.5rem;
-}
-
-.doc-breadcrumbs a {
-  color: var(--vp-c-brand-1);
-  text-decoration: none;
-}
-
-.doc-breadcrumbs a:hover {
-  text-decoration: underline;
-}
-
-.doc-breadcrumbs .sep {
-  color: var(--vp-c-text-3);
-  user-select: none;
-}
